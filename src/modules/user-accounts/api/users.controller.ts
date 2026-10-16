@@ -15,6 +15,7 @@ import { UserViewDto } from './viewDto/users.view-dto.js';
 import { UsersQwRepo } from '../infrastructure/users.query-repository.js';
 import { GetUsersQueryParams } from './inputDto/get-users-query-params.input-dto.js';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto.js';
+import { UsersPaginatedViewDto } from './viewDto/users.paginated.view-dto.js';
 
 @Controller('user-accounts')
 export class UsersController {
@@ -26,7 +27,7 @@ export class UsersController {
     @Get()
     async getUserList(
         @Query() query: GetUsersQueryParams
-    ): Promise<PaginatedViewDto<UserViewDto[]>> {
+    ): Promise<UsersPaginatedViewDto> {
         return this.usersQwRepository.getAll(query)
     }
 

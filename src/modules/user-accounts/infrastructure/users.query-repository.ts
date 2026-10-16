@@ -4,7 +4,6 @@ import { UserViewDto } from "../api/viewDto/users.view-dto.js";
 import { NotFoundException } from "@nestjs/common";
 import { GetUsersQueryParams } from "../api/inputDto/get-users-query-params.input-dto.js";
 import { UsersPaginatedViewDto } from "../api/viewDto/users.paginated.view-dto.js";
-import { PaginatedViewDto } from "../../../core/dto/base.paginated.view-dto.js";
 
 
 export class UsersQwRepo {
@@ -30,7 +29,7 @@ export class UsersQwRepo {
 
     async getAll(
         query: GetUsersQueryParams
-    ): Promise<PaginatedViewDto<UserViewDto[]>> {
+    ): Promise<UsersPaginatedViewDto> {
 
         const {
             pageNumber,
