@@ -7,6 +7,8 @@ import { PostsModule } from './modules/bloggers-platform/posts/posts.module.js';
 import { PostsController } from './modules/bloggers-platform/posts/api/posts.controller.js';
 import { CommentsController } from './modules/bloggers-platform/comments/api/comments.controller.js';
 import { BlogsModule } from './modules/bloggers-platform/blogs/blogs.module.js';
+import { TestingController } from './modules/testing/testing.controller.js';
+import { TestingModule } from './modules/testing/testing.module.js';
 
 @Module({
   imports: [
@@ -15,9 +17,10 @@ import { BlogsModule } from './modules/bloggers-platform/blogs/blogs.module.js';
     CoreModule,
     CommentsModule,
     PostsModule,
-    BlogsModule
+    BlogsModule,
+    TestingModule
   ],
-  controllers: [CommentsController, PostsController],
+  controllers: [CommentsController, PostsController, TestingController],
   providers: [],
 })
 export class AppModule {}
