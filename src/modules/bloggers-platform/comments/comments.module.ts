@@ -10,7 +10,7 @@ import { CommentsQwRepo } from './infrastructure/comments.query-repository.js';
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentsSchema }])
   ],
   controllers: [CommentsController],
-  providers: [CommentsService],
+  providers: [CommentsService, CommentsQwRepo],
   exports: [CommentsService, CommentsQwRepo]
 })
 export class CommentsModule {}

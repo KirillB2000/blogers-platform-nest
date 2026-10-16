@@ -14,10 +14,10 @@ import { PostsRepository } from '../infrastructure/posts.repository.js';
 export class PostsController {
 
     constructor (
-        private commentsQwRepo: CommentsQwRepo,
         private postsQwRepo: PostsQwRepo,
         private postsRepository: PostsRepository,
-        private postsService: PostsService
+        private postsService: PostsService,
+        private commentsQwRepo: CommentsQwRepo
     ) {}
 
     @Post()

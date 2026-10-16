@@ -20,7 +20,8 @@ export class LikesInfo {
     dislikesCount: number
 
     @Prop({
-        type: LikeStatus,
+        type: String,
+        enum: LikeStatus,
         default: LikeStatus.None
     })
     myStatus: LikeStatus
