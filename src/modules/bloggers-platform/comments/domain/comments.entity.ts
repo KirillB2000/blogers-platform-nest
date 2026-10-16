@@ -10,6 +10,12 @@ export class Comment {
         required: true,
         type: String
     })
+    postId: string
+
+    @Prop({
+        required: true,
+        type: String
+    })
     content: string
 
     @Prop({
@@ -24,7 +30,7 @@ export class Comment {
     likesInfo: LikesInfo
 
     createdAt: Date
-    updateAt: Date
+    updatedAt: Date
 
     // TODO: add static method to create instance of Comment class
 }

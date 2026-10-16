@@ -15,7 +15,8 @@ export class PostsQwRepo {
     ) {}
 
     async getAll (
-        query: GetPostsQueryParams
+        query: GetPostsQueryParams,
+        blogId?: string
     ) {
         const {
             pageNumber,
@@ -26,6 +27,10 @@ export class PostsQwRepo {
 
         const filter: any = {}
         const skip = query.calculateSkip()
+
+        if (blogId) {
+            filter.blogId = blogId
+        }
 
         const result = await this.PostModel
             .find(filter)
