@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlogInputModel } from '../api/inputDto/blogers.input-dto.js';
+import { BlogInputModel } from '../api/inputDto/blogs.input-dto.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, type BlogModelType } from '../domain/blogs.entity.js';
 import { BlogsRepository } from '../infrastructure/blogs.repository.js';

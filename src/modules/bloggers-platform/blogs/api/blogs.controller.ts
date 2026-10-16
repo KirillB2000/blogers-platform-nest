@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service.js';
 import { BlogsQwRepo } from '../infrastructure/blogs.query-repository.js';
-import { BlogInputModel } from './inputDto/blogers.input-dto.js';
-import { BlogViewModel } from './viewDto/blogers.view-dto.js';
+import { BlogInputModel } from './inputDto/blogs.input-dto.js';
+import { BlogViewModel } from './viewDto/blogs.view-dto.js';
 import { GetBlogsQueryParams } from './inputDto/get-blogs-query-params.input-dto.js';
-import { BlogsPaginatedViewDto } from './viewDto/blogers.paginated.view-dto.js';
+import { BlogsPaginatedViewDto } from './viewDto/blogs.paginated.view-dto.js';
 
 @Controller('blogs')
 export class BlogsController {

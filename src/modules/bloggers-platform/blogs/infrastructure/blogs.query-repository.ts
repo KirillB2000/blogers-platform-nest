@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Blog, type BlogModelType } from "../domain/blogs.entity.js";
-import { BlogViewModel } from "../api/viewDto/blogers.view-dto.js";
+import { BlogViewModel } from "../api/viewDto/blogs.view-dto.js";
 import { GetBlogsQueryParams } from "../api/inputDto/get-blogs-query-params.input-dto.js";
-import { BlogsPaginatedViewDto } from "../api/viewDto/blogers.paginated.view-dto.js";
+import { BlogsPaginatedViewDto } from "../api/viewDto/blogs.paginated.view-dto.js";
 import { skip } from "node:test";
 
 @Injectable()

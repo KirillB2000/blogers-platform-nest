@@ -1,12 +1,7 @@
-import { Prop, Schema } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { LikeStatus } from "../../../../core/types/like-statuses.js";
 
 // TODO: split LikesInfo on two collections (for separate LikeStatus from specific comment)
-
-export enum LikeStatus {
-    None = 'None',
-    Like = 'Like',
-    Dislike = 'Dislike'
-}
 
 @Schema({
     _id: false
@@ -30,3 +25,5 @@ export class LikesInfo {
     })
     myStatus: LikeStatus
 }
+
+export const LikesInfoSchema = SchemaFactory.createForClass(LikesInfo)

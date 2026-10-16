@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { CommentatorInfo } from "./commentator-info.schema.js";
-import { LikesInfo } from "./likes-info.schema.js";
+import { CommentatorInfo, CommentatorInfoSchema } from "./commentator-info.schema.js";
+import { LikesInfo, LikesInfoSchema } from "./likes-info.schema.js";
 import { HydratedDocument, Model } from "mongoose";
 
 
@@ -14,12 +14,12 @@ export class Comment {
 
     @Prop({
         required: true,
-        type: CommentatorInfo
+        type: CommentatorInfoSchema
     })
     commentatorInfo: CommentatorInfo
 
     @Prop({
-        type: LikesInfo
+        type: LikesInfoSchema
     })
     likesInfo: LikesInfo
 
