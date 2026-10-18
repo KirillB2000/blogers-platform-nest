@@ -14,10 +14,9 @@ import { CreateUserInputDto } from './inputDto/uesrs.input-dto.js';
 import { UserViewDto } from './viewDto/users.view-dto.js';
 import { UsersQwRepo } from '../infrastructure/users.query-repository.js';
 import { GetUsersQueryParams } from './inputDto/get-users-query-params.input-dto.js';
-import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto.js';
 import { UsersPaginatedViewDto } from './viewDto/users.paginated.view-dto.js';
 
-@Controller('user-accounts')
+@Controller('users')
 export class UsersController {
     constructor (
         private usersQwRepository: UsersQwRepo,

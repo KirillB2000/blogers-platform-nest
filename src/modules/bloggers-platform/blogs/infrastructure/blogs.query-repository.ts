@@ -4,7 +4,6 @@ import { Blog, type BlogModelType } from "../domain/blogs.entity.js";
 import { BlogViewModel } from "../api/viewDto/blogs.view-dto.js";
 import { GetBlogsQueryParams } from "../api/inputDto/get-blogs-query-params.input-dto.js";
 import { BlogsPaginatedViewDto } from "../api/viewDto/blogs.paginated.view-dto.js";
-import { skip } from "node:test";
 
 @Injectable()
 export class BlogsQwRepo {
@@ -41,13 +40,14 @@ export class BlogsQwRepo {
 
         if (searchNameTerm) {
             filter.$or = []
-            filter.$or.push({name: {$regex: searchNameTerm, options: 'i'}})
+            filter.$or.push({name: {$regex: searchNameTerm, $options: 'i'}})
         }
 
         const result = await this.BlogModel
             .find(filter)
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
+            .limit(pageSize)
             .exec()
 
         const totalCount = await this.BlogModel.countDocuments(filter)

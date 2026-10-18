@@ -45,6 +45,7 @@ export class CommentsQwRepo {
             .find(filter)
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
+            .limit(pageSize)
             .exec()
 
         const items = result.map(CommentViewModel.mapToView)

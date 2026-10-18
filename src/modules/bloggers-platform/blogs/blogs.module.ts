@@ -4,6 +4,7 @@ import { BlogsService } from './application/blogs.service.js';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './domain/blogs.entity.js';
 import { BlogsRepository } from './infrastructure/blogs.repository.js';
+import { BlogsQwRepo } from './infrastructure/blogs.query-repository.js';
 import { PostsModule } from '../posts/posts.module.js';
 
 @Module({
@@ -12,7 +13,7 @@ import { PostsModule } from '../posts/posts.module.js';
     forwardRef(() => PostsModule )
   ],
   controllers: [BlogsController],
-  providers: [BlogsService, BlogsRepository],
+  providers: [BlogsService, BlogsRepository, BlogsQwRepo],
   exports: [BlogsRepository]
 })
 export class BlogsModule {}

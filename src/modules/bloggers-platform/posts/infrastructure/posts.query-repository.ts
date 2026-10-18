@@ -36,6 +36,7 @@ export class PostsQwRepo {
             .find(filter)
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
+            .limit(pageSize)
             .exec()
 
         const totalCount = await this.PostModel.countDocuments(filter)

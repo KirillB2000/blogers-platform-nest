@@ -57,6 +57,7 @@ export class UsersQwRepo {
         .find(filter)
         .sort({ [sortBy]: sortDirection })
         .skip(skip)
+        .limit(pageSize)
         .exec()
 
         const totalCount = await this.UserModel.countDocuments(filter)

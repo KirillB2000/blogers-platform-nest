@@ -23,12 +23,6 @@ export class User {
     })
     email: string
 
-    @Prop({
-        type: Boolean,
-        required: true
-    })
-    isEmailConfirmed: boolean
-
     createdAt: Date
     updatedAt: Date
 

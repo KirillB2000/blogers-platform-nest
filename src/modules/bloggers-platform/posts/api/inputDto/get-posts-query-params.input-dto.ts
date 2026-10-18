@@ -3,5 +3,5 @@ import { PostsSortBy } from "./posts-sort-by.js";
 
 
 export class GetPostsQueryParams extends BaseQueryParams {
-    sortBy: PostsSortBy.CreatedAt
+    sortBy: string = PostsSortBy.CreatedAt
 }

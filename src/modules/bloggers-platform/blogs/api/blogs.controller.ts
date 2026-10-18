@@ -19,7 +19,7 @@ export class BlogsController {
 
     constructor (
         private postsQwRepo: PostsQwRepo,
-        private potsService: PostsService,
+        private postsService: PostsService,
 
         private blogsQwRepo: BlogsQwRepo,
         private blogsRepository: BlogsRepository,
@@ -68,7 +68,7 @@ export class BlogsController {
     }
 
     // Posts
-    @Get(':bloId/posts')
+    @Get(':blogId/posts')
     async getPostsListForBlogById (
         @Param('blogId') blogId: string,
         @Query() query: GetPostsQueryParams
@@ -78,13 +78,13 @@ export class BlogsController {
         return this.postsQwRepo.getAll(query, blogId)
     }
 
-    @Post(':blogId/post')
+    @Post(':blogId/posts')
     async createPostForBlog (
         @Param('blogId') blogId: string,
         @Body() body: BlogPostInputModel
     ): Promise<PostViewModel> {
         const correctDto: PostInputModel = {...body, blogId}
 
-        return await this.potsService.createPost(correctDto)
+        return await this.postsService.createPost(correctDto)
     }
 }

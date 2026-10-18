@@ -4,7 +4,8 @@ export function appSetup(app: INestApplication) {
     
     app.useGlobalPipes(
         new ValidationPipe({
-            transform: true
+            transform: true,
+            stopAtFirstError: true
         })
     )
 

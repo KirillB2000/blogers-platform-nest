@@ -4,10 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CoreModule } from './core/core.module.js';
 import { CommentsModule } from './modules/bloggers-platform/comments/comments.module.js';
 import { PostsModule } from './modules/bloggers-platform/posts/posts.module.js';
-import { PostsController } from './modules/bloggers-platform/posts/api/posts.controller.js';
-import { CommentsController } from './modules/bloggers-platform/comments/api/comments.controller.js';
 import { BlogsModule } from './modules/bloggers-platform/blogs/blogs.module.js';
-import { TestingController } from './modules/testing/testing.controller.js';
 import { TestingModule } from './modules/testing/testing.module.js';
 
 @Module({
@@ -20,7 +17,6 @@ import { TestingModule } from './modules/testing/testing.module.js';
     BlogsModule,
     TestingModule
   ],
-  controllers: [CommentsController, PostsController, TestingController],
   providers: [],
 })
 export class AppModule {}
