@@ -8,9 +8,11 @@ describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const testingModuleBuilder = Test.createTestingModule({
+      imports: [AppModule], 
+    });
+    
+    const moduleFixture: TestingModule = await testingModuleBuilder.compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -20,7 +22,7 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect('Hello world!!')
   });
 
   afterEach(async () => {

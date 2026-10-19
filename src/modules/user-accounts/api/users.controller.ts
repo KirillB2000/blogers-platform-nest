@@ -23,13 +23,6 @@ export class UsersController {
         private usersService: UsersService
     ) {}
 
-    @Get()
-    async getUserList(
-        @Query() query: GetUsersQueryParams
-    ): Promise<UsersPaginatedViewDto> {
-        return this.usersQwRepository.getAll(query)
-    }
-
     @Post()
     async createUser(
         @Body() body: CreateUserInputDto
@@ -37,6 +30,13 @@ export class UsersController {
         const userId = await this.usersService.createUser(body)
 
         return this.usersQwRepository.getByIdOrNotFoundFail(userId)
+    }
+
+    @Get()
+    async getUserList(
+        @Query() query: GetUsersQueryParams
+    ): Promise<UsersPaginatedViewDto> {
+        return this.usersQwRepository.getAll(query)
     }
 
     @Delete(':id')

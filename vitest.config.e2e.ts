@@ -4,6 +4,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    env: {
+      NODE_ENV: 'testing'
+    },
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],

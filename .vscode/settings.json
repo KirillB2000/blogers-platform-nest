@@ -1,0 +1,6 @@
+{
+  "vitest.nodeEnv": {
+    "NODE_ENV": "testing"
+  },
+  "vitest.configPath": "./vitest.config.e2e.ts"
+}
