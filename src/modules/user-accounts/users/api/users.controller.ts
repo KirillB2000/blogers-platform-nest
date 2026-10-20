@@ -16,7 +16,7 @@ import { UserViewDto } from './viewDto/users.view-dto.js';
 import { UsersQwRepo } from '../infrastructure/users.query-repository.js';
 import { GetUsersQueryParams } from './inputDto/get-users-query-params.input-dto.js';
 import { UsersPaginatedViewDto } from './viewDto/users.paginated.view-dto.js';
-import { AuthGuard } from '../../../auth.guard.js';
+import { AuthGuard } from '../../../../auth.guard.js';
 
 @UseGuards(AuthGuard)
 @Controller('users')
