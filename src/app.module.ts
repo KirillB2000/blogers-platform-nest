@@ -7,7 +7,8 @@ import { PostsModule } from './modules/bloggers-platform/posts/posts.module.js';
 import { BlogsModule } from './modules/bloggers-platform/blogs/blogs.module.js';
 import { TestingModule } from './modules/testing/testing.module.js';
 import { AppController } from './app.controller.js';
-import { UserAccountsModule } from './modules/user-accounts/users/user-accounts.module.js';
+import { UserAccountsModule } from './modules/user-accounts/user-accounts.module.js';
+import { NotificationModule } from './modules/notification/notification.module.js';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { UserAccountsModule } from './modules/user-accounts/users/user-accounts.
     CommentsModule,
     PostsModule,
     BlogsModule,
-    TestingModule
+    TestingModule,
+    NotificationModule,
   ],
   providers: [],
   controllers: [AppController],

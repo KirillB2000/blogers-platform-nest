@@ -10,24 +10,24 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const status = exception.getStatus();
 
         if (status === 400) {
-            let errorResponse: { errors: { message: string, field: string }[] } = {
-                errors: []
+            let errorResponse: { errorsMessages: { message: string, field: string }[] } = {
+                errorsMessages: []
             };
 
             const responseBody: any = exception.getResponse();
 
             // Безопасно проверяем, что нам пришло в ответе
             if (typeof responseBody === 'string') {
-                errorResponse.errors.push({ message: responseBody, field: 'global' });
+                errorResponse.errorsMessages.push({ message: responseBody, field: 'global' });
             } else if (responseBody && typeof responseBody === 'object') {
                 const message = responseBody.message;
 
                 if (Array.isArray(message)) {
                     // Если это массив объектов из нашего ValidationPipe
-                    errorResponse.errors.push(...message);
+                    errorResponse.errorsMessages.push(...message);
                 } else if (typeof message === 'string') {
                     // Если это ручная ошибка вида throw new BadRequestException('Ошибка')
-                    errorResponse.errors.push({ message: message, field: 'global' });
+                    errorResponse.errorsMessages.push({ message: message, field: 'global' });
                 }
             }
 

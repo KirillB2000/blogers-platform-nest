@@ -11,12 +11,12 @@ import {
     UseGuards
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
-import { CreateUserInputDto } from './inputDto/uesrs.input-dto.js';
+import { UserInputModel } from './inputDto/uesrs.input-dto.js';
 import { UserViewDto } from './viewDto/users.view-dto.js';
 import { UsersQwRepo } from '../infrastructure/users.query-repository.js';
 import { GetUsersQueryParams } from './inputDto/get-users-query-params.input-dto.js';
 import { UsersPaginatedViewDto } from './viewDto/users.paginated.view-dto.js';
-import { AuthGuard } from '../../../../auth.guard.js';
+import { AuthGuard } from '../../../auth.guard.js';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -28,7 +28,7 @@ export class UsersController {
 
     @Post()
     async createUser(
-        @Body() body: CreateUserInputDto
+        @Body() body: UserInputModel
     ): Promise<UserViewDto> {
         const userId = await this.usersService.createUser(body)
 

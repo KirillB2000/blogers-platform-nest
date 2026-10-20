@@ -1,0 +1,73 @@
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { User, UserDocument, type UserModelType } from "../domain/user.entity.js";
+
+@Injectable()
+export class UsersRepository {
+    constructor(@InjectModel(User.name) private UserModel: UserModelType) {}
+    
+    async save(user: UserDocument) {
+        await user.save();
+    }
+
+    async delete(
+        id: string
+    ): Promise<void> {
+        await this.UserModel.deleteOne({ _id: id })
+    }
+
+    async findById (
+        id: string
+    ): Promise<UserDocument | null> {
+        const userDoc = this.UserModel.findOne({_id: id})
+
+        return userDoc
+    }
+
+    async findOrNotFoundFail(
+        id: string
+    ): Promise<UserDocument> {
+        const userDoc = await this.UserModel.findById(id)
+
+        if (!userDoc) {
+            throw new NotFoundException('User not found')
+        }
+
+        return userDoc
+    }
+
+    async findByLogin (
+        login: string
+    ): Promise<UserDocument | null> {
+        const userDoc = this.UserModel
+            .findOne({
+                login: login
+            })
+            .exec()
+
+        return userDoc
+    }
+
+    async findByEmail(
+        email: string
+    ): Promise<UserDocument | null> {
+        const userDoc = this.UserModel
+            .findOne({
+                email: email
+            })
+            .exec()
+
+        return userDoc
+    }
+
+    async findUserByConfirmationCode(
+        confirmationCode: string
+    ): Promise<UserDocument | null> {
+        const userDoc = await this.UserModel.findOne({
+            'emailConfirmationInfo.confirmationCode': confirmationCode
+        })
+        .exec()
+
+        return userDoc
+    }
+}
