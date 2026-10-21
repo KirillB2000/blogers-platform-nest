@@ -8,10 +8,17 @@ import { UsersQwRepo } from './infrastructure/users.query-repository.js';
 import { AuthController } from './api/auth.controller.js';
 import { AuthService } from './application/auth.service.js';
 import { NotificationModule } from '../notification/notification.module.js';
+import { JwtModule } from '@nestjs/jwt'
+import { LocalStrategy } from './guards/local/local.strategy.js';
+import { EmailExamples } from '../notification/email.examples.js';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_SECRET,
+      signOptions: {expiresIn: '5m'}
+    }),
     NotificationModule
   ],
   controllers: [UsersController, AuthController],
@@ -19,7 +26,10 @@ import { NotificationModule } from '../notification/notification.module.js';
     UsersService, 
     AuthService, 
     UsersRepository, 
-    UsersQwRepo],
+    UsersQwRepo,
+    LocalStrategy,
+    EmailExamples
+  ],
   exports: [UsersService, UsersRepository]
 })
 export class UserAccountsModule {}

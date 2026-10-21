@@ -1,20 +1,47 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserInputModel } from '../api/inputDto/uesrs.input-dto.js';
 import { UsersRepository } from '../infrastructure/users.repository.js';
 import bcrypt from 'bcrypt'
-import { User, type UserModelType } from '../domain/user.entity.js';
+import { User, UserDocument, type UserModelType } from '../domain/user.entity.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { EmailService } from '../../notification/email.service.js';
 import { CreateUserDomainDto } from '../domain/dto/create-user.domain.js';
+import { LoginInputModel } from '../api/inputDto/login.input-dto.js';
+import { LoginSuccessViewModel } from '../api/viewDto/login-success.view-dto.js';
+import { JwtService } from '@nestjs/jwt';
+import { NewPasswordRecoveryInputModel } from '../api/inputDto/new-password-recovery.input-dto.js';
 
 @Injectable()
 export class AuthService {
     constructor (
-        @InjectModel(User.name)
+    @InjectModel(User.name)
         private UserModel: UserModelType,
         private usersRepository: UsersRepository,
-        private emailService: EmailService 
+        private emailService: EmailService ,
+        private jwtService: JwtService
     ) {}
+
+    async validateUser(
+        loginOrEmail: string,
+        password: string
+    ): Promise<UserDocument | null> {
+        const user = await this.usersRepository.findByLoginOrEmailField(loginOrEmail)
+        if (!user) return null
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash)
+        if (!isPasswordCorrect) return null
+
+        return user;
+    }
+
+    async login(
+        userId: string
+    ): Promise<LoginSuccessViewModel> {
+        const payload = { sub: userId }
+        const accessToken = this.jwtService.sign(payload)
+
+        return { accessToken }
+    }
 
     async registerUser (
         userInput: UserInputModel
@@ -31,7 +58,7 @@ export class AuthService {
             throw new BadRequestException([{ message: 'Email must be unique', field: 'email' }])
         }
 
-        const passwordHash = await bcrypt.hash(userInput.password, 10)
+        const passwordHash = await bcrypt.hash(userInput.password, 10) //TODO: make service
 
         const dtoForUserCreation = CreateUserDomainDto.mapToDomain(userInput, passwordHash)
 
@@ -56,5 +83,57 @@ export class AuthService {
         userByCode.confirmEmail()
 
         await this.usersRepository.save(userByCode)
+    }
+    
+    async emailResending(
+        email: string
+    ): Promise<void> {
+        const userByEmail = await this.usersRepository.findByEmail(email)
+
+        if (!userByEmail) {
+            throw new BadRequestException([{ message: 'Email should be in the system and should be correct', field: 'email' }])
+        }
+
+        userByEmail.updateConfirmationCode()
+
+        await this.usersRepository.save(userByEmail)
+
+        this.emailService
+            .sendConfirmationEmail(userByEmail.emailConfirmationInfo.confirmationCode, userByEmail.email)
+            .catch(console.error)
+    }
+
+    async passwordRecovery(
+        email: string
+    ): Promise<void> {
+        const userByEmail = await this.usersRepository.findByEmail(email)
+
+        if (!userByEmail) {
+            return
+        }
+
+        const recoveryCode = userByEmail.updateRecoveryCode()
+
+        await this.usersRepository.save(userByEmail)
+
+        this.emailService
+            .sendRecoveryPassword(recoveryCode, userByEmail.email)
+            .catch(console.error)
+    }
+
+    async newPassword(
+        passwordRecoveryCreds: NewPasswordRecoveryInputModel
+    ):  Promise<void> {
+
+        const newPassword = passwordRecoveryCreds.newPassword
+        const recoveryCode = passwordRecoveryCreds.newPassword
+
+        const userByRecoveryCode = await this.usersRepository.findUserByRecoveryCode(recoveryCode)
+
+        if (!userByRecoveryCode) {
+            throw new BadRequestException([{ message: 'Invalid recovery code', field: 'recoveryCode' }])
+        }
+
+        userByRecoveryCode.updatePasswordByRecoveryCode()
     }
 }

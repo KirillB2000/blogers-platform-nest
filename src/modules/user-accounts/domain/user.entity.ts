@@ -75,6 +75,32 @@ export class User {
 
         this.emailConfirmationInfo.isConfirmed = true
     }
+
+    updateConfirmationCode () {
+        if (this.emailConfirmationInfo.isConfirmed) {
+            throw new BadRequestException([{ message: 'Email already confirmed', field: 'email' }])
+        }
+
+        this.emailConfirmationInfo.confirmationCode = randomUUID() as string
+        this.emailConfirmationInfo.expirationDate = add(new Date(), { minutes: 5 })
+    }
+
+    updateRecoveryCode (): string {
+        const code = randomUUID() as string
+        
+        this.passwordRecoveryInfo.recoveryCode = code
+        this.passwordRecoveryInfo.expirationDate = add(new Date(), { minutes: 5 })
+
+        return code
+    }
+
+    updatePasswordByRecoveryCode() {
+        if (this.passwordRecoveryInfo.expirationDate! < new Date()) {
+            throw new BadRequestException([{ message: 'Recovery code is expired', field: 'recoveryCode' }])
+        }
+
+        
+    }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User) // <== Generate runtime schema with types we declared with @Prop()

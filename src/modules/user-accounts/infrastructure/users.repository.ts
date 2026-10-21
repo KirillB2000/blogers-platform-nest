@@ -51,7 +51,7 @@ export class UsersRepository {
     async findByEmail(
         email: string
     ): Promise<UserDocument | null> {
-        const userDoc = this.UserModel
+        const userDoc = await this.UserModel
             .findOne({
                 email: email
             })
@@ -67,6 +67,30 @@ export class UsersRepository {
             'emailConfirmationInfo.confirmationCode': confirmationCode
         })
         .exec()
+
+        return userDoc
+    }
+
+    async findByLoginOrEmailField(
+        loginOrEmail: string
+    ): Promise<UserDocument | null> {
+        const userDoc = this.UserModel
+            .findOne({
+                $or: [{email: loginOrEmail}, {login: loginOrEmail}]
+            })
+            .exec()
+
+        return userDoc
+    }
+
+    async findUserByRecoveryCode(
+        recoveryCode: string
+    ): Promise<UserDocument | null> {
+        const userDoc = this.UserModel
+            .findOne({
+                'passwordRecoveryInfo.recoveryCode': recoveryCode
+            })
+            .exec()
 
         return userDoc
     }
