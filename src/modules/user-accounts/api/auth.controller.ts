@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { UserInputModel } from './inputDto/uesrs.input-dto.js';
 import { AuthService } from '../application/auth.service.js';
 import { RegistrationConfirmationCodeModel } from './inputDto/register-confirm-code.input-dto.js';
@@ -6,15 +6,18 @@ import { RegistrationEmailResending } from './inputDto/register-email-resending.
 import { LoginSuccessViewModel } from './viewDto/login-success.view-dto.js';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard.js';
 import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request.js';
-import { type UserDocument } from '../domain/user.entity.js';
 import { PasswordRecoveryInputModel } from './inputDto/password-recovery.input-dto.js';
 import { NewPasswordRecoveryInputModel } from './inputDto/new-password-recovery.input-dto.js';
 import { UserContextDto } from '../guards/dto/user-context.dto.js';
+import { AuthQueryRepository } from '../infrastructure/auth.query-repository.js';
+import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard.js';
+import { MeViewDto } from './viewDto/me.view-dto.js';
 
 @Controller('auth')
 export class AuthController {
     constructor (
-        private authService: AuthService
+        private authService: AuthService,
+        private authQwRepo: AuthQueryRepository
     ) {}
 
     @Post('login')
@@ -69,6 +72,15 @@ export class AuthController {
         @Body() body: NewPasswordRecoveryInputModel
     ): Promise<void> {
         return await this.authService.newPassword(body)
+    }
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    async me (
+        @ExtractUserFromRequest() user: UserContextDto
+    ): Promise<MeViewDto> {
+        const { id } = user
+        return await this.authQwRepo.me(id)
     }
 }
 

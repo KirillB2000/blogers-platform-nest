@@ -11,6 +11,7 @@ import { NotificationModule } from '../notification/notification.module.js';
 import { JwtModule } from '@nestjs/jwt'
 import { LocalStrategy } from './guards/local/local.strategy.js';
 import { EmailExamples } from '../notification/email.examples.js';
+import { JwtStrategy } from './guards/bearer/jwt.strategy.js';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EmailExamples } from '../notification/email.examples.js';
     UsersRepository, 
     UsersQwRepo,
     LocalStrategy,
+    JwtStrategy,
     EmailExamples
   ],
   exports: [UsersService, UsersRepository]
