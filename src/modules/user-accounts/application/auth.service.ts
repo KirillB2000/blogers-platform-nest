@@ -126,7 +126,7 @@ export class AuthService {
     ):  Promise<void> {
 
         const newPassword = passwordRecoveryCreds.newPassword
-        const recoveryCode = passwordRecoveryCreds.newPassword
+        const recoveryCode = passwordRecoveryCreds.recoveryCode
 
         const userByRecoveryCode = await this.usersRepository.findUserByRecoveryCode(recoveryCode)
 
@@ -134,6 +134,12 @@ export class AuthService {
             throw new BadRequestException([{ message: 'Invalid recovery code', field: 'recoveryCode' }])
         }
 
-        userByRecoveryCode.updatePasswordByRecoveryCode()
+        userByRecoveryCode.checkRecoveryCodeOrThrow()
+
+        const passwordHash = await bcrypt.hash(newPassword, 10)
+
+        userByRecoveryCode.updatePassword(passwordHash)
+
+        await this.usersRepository.save(userByRecoveryCode)
     }
 }

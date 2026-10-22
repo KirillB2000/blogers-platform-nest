@@ -9,6 +9,7 @@ import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-
 import { type UserDocument } from '../domain/user.entity.js';
 import { PasswordRecoveryInputModel } from './inputDto/password-recovery.input-dto.js';
 import { NewPasswordRecoveryInputModel } from './inputDto/new-password-recovery.input-dto.js';
+import { UserContextDto } from '../guards/dto/user-context.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -20,9 +21,9 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
     async login(
-        @ExtractUserFromRequest() user: UserDocument
+        @ExtractUserFromRequest() user: UserContextDto
     ): Promise<LoginSuccessViewModel> {
-        const id = user._id.toString()
+        const { id } = user
         return await this.authService.login(id)
     }
 

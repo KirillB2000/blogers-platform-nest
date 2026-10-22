@@ -94,13 +94,25 @@ export class User {
         return code
     }
 
-    updatePasswordByRecoveryCode() {
-        if (this.passwordRecoveryInfo.expirationDate! < new Date()) {
+    checkRecoveryCodeOrThrow() {
+        if (!this.passwordRecoveryInfo.recoveryCode) {
+            throw new BadRequestException([{ message: 'Recovery code already used or invalid', field: 'recoveryCode' }]);
+        }
+        
+        if (isAfter(new Date(), this.passwordRecoveryInfo.expirationDate!)) {
             throw new BadRequestException([{ message: 'Recovery code is expired', field: 'recoveryCode' }])
         }
-
-        
     }
+
+    updatePassword (
+        hashedPassword: string
+    ) {
+        this.passwordHash = hashedPassword
+
+        this.passwordRecoveryInfo.recoveryCode = null
+        this.passwordRecoveryInfo.expirationDate = null
+    }
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User) // <== Generate runtime schema with types we declared with @Prop()
