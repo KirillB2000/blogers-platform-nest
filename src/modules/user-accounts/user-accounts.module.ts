@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { LocalStrategy } from './guards/local/local.strategy.js';
 import { EmailExamples } from '../notification/email.examples.js';
 import { JwtStrategy } from './guards/bearer/jwt.strategy.js';
+import { AuthQueryRepository } from './infrastructure/auth.query-repository.js';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { JwtStrategy } from './guards/bearer/jwt.strategy.js';
     AuthService, 
     UsersRepository, 
     UsersQwRepo,
+    AuthQueryRepository,
     LocalStrategy,
     JwtStrategy,
     EmailExamples
