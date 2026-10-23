@@ -12,6 +12,7 @@ import { UserContextDto } from '../guards/dto/user-context.dto.js';
 import { AuthQueryRepository } from '../infrastructure/auth.query-repository.js';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard.js';
 import { MeViewDto } from './viewDto/me.view-dto.js';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,7 @@ export class AuthController {
         return await this.authService.login(id)
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('registration')
     @HttpCode(HttpStatus.NO_CONTENT)
     async registerUser (
@@ -38,6 +40,7 @@ export class AuthController {
         return await this.authService.registerUser(body)
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('registration-confirmation')
     @HttpCode(HttpStatus.NO_CONTENT)
     async registrationConfirmation (
@@ -47,6 +50,7 @@ export class AuthController {
         return await this.authService.emailConfirmation(code)
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('registration-email-resending')
     @HttpCode(HttpStatus.NO_CONTENT)
     async registrationEmailResending (
@@ -56,6 +60,7 @@ export class AuthController {
         return await this.authService.emailResending(email)
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('password-recovery')
     @HttpCode(HttpStatus.NO_CONTENT)
     async passwordRecovery (
@@ -66,6 +71,7 @@ export class AuthController {
         return await this.authService.passwordRecovery(email)
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('new-password')
     @HttpCode(HttpStatus.NO_CONTENT)
     async newPassword (

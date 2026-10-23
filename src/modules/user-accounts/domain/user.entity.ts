@@ -7,6 +7,18 @@ import { randomUUID } from "crypto";
 import { add, isAfter } from 'date-fns'
 import { BadRequestException } from "@nestjs/common";
 
+export const loginConstraints = {
+    minLength: 3,
+    maxLength: 10
+}
+
+
+export const passwordConstraints = {
+    minLength: 6,
+    maxLength: 20
+}
+
+
 @Schema({ timestamps: true })
 export class User {
 
