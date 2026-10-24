@@ -9,7 +9,7 @@ import { TestingModule } from './modules/testing/testing.module.js';
 import { AppController } from './app.controller.js';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
-import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { seconds, ThrottlerModule } from '@nestjs/throttler'
 @Module({
   imports: [
     configModule,

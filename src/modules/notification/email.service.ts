@@ -10,20 +10,24 @@ export class EmailService {
     ) {}
 
     async sendConfirmationEmail (
-        code: string,
-        email: string
+        email: string,
+        code: string
     ): Promise<void> {
         await this.mailerService.sendMail({
-            text: this.emailExamples.registrationEmail(code)
+            to: email,
+            subject: 'Registration Confirmation',
+            html: this.emailExamples.registrationEmail(code)
         })
     }
 
     async sendRecoveryPassword (
-        code: string,
-        email: string
+        email: string,
+        code: string
     ): Promise<void> {
         await this.mailerService.sendMail({
-            text: this.emailExamples.recoveryPasswordEmail(code)
+            to: email,
+            subject: 'Password Recovery',
+            html: this.emailExamples.recoveryPasswordEmail(code)
         })
     }
 }

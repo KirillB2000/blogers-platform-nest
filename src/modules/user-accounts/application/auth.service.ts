@@ -99,7 +99,7 @@ export class AuthService {
         await this.usersRepository.save(userByEmail)
 
         this.emailService
-            .sendConfirmationEmail(userByEmail.emailConfirmationInfo.confirmationCode, userByEmail.email)
+            .sendConfirmationEmail(userByEmail.email, userByEmail.emailConfirmationInfo.confirmationCode)
             .catch(console.error)
     }
 
