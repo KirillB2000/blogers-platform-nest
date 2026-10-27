@@ -10,6 +10,7 @@ import { AppController } from './app.controller.js';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
 import { seconds, ThrottlerModule } from '@nestjs/throttler'
+
 @Module({
   imports: [
     configModule,

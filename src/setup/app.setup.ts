@@ -1,5 +1,5 @@
 import { BadRequestException, INestApplication, ValidationError, ValidationPipe } from "@nestjs/common";
-import { HttpExceptionFilter } from "../exception.filter.js";
+import { HttpExceptionFilter } from "../httpExceptionFilter.filter.js";
 
 export function appSetup(app: INestApplication) {
     
