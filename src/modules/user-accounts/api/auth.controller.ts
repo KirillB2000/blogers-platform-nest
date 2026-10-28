@@ -13,12 +13,20 @@ import { AuthQueryRepository } from '../infrastructure/auth.query-repository.js'
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard.js';
 import { MeViewDto } from './viewDto/me.view-dto.js';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { CommandBus } from '@nestjs/cqrs';
+import { LoginUserCommand } from '../application/usecases/login-user.usecase.js';
+import { RegisterUserCommand } from '../application/usecases/register-user.usecase.js';
+import { EmailConfirmationCommand } from '../application/usecases/email-conifrmation.usecase.js';
+import { EmailResendingCommand } from '../application/usecases/email-resending.usecase.js';
+import { PasswordRecoveryCommand } from '../application/usecases/password-recovery.usecase.js';
+import { UpdatePasswordCommand } from '../application/usecases/update-password.usecase.js';
 
 @Controller('auth')
 export class AuthController {
     constructor (
         private authService: AuthService,
-        private authQwRepo: AuthQueryRepository
+        private authQwRepo: AuthQueryRepository,
+        private commandBus: CommandBus
     ) {}
 
     @Post('login')
@@ -27,8 +35,7 @@ export class AuthController {
     async login(
         @ExtractUserFromRequest() user: UserContextDto
     ): Promise<LoginSuccessViewModel> {
-        const { id } = user
-        return await this.authService.login(id)
+        return await this.commandBus.execute<LoginUserCommand, LoginSuccessViewModel>(new LoginUserCommand(user.id))
     }
 
     @UseGuards(ThrottlerGuard)
@@ -37,7 +44,7 @@ export class AuthController {
     async registerUser (
         @Body() body: UserInputModel
     ): Promise<void> {
-        return await this.authService.registerUser(body)
+        return await this.commandBus.execute<RegisterUserCommand, void>(new RegisterUserCommand({...body}))
     }
 
     @UseGuards(ThrottlerGuard)
@@ -47,7 +54,7 @@ export class AuthController {
         @Body() body: RegistrationConfirmationCodeModel
     ): Promise<void> {
         const { code } = body 
-        return await this.authService.emailConfirmation(code)
+        return await this.commandBus.execute<EmailConfirmationCommand, void>(new EmailConfirmationCommand(code))
     }
 
     @UseGuards(ThrottlerGuard)
@@ -57,7 +64,7 @@ export class AuthController {
         @Body() body: RegistrationEmailResending
     ): Promise<void> {
         const { email } = body
-        return await this.authService.emailResending(email)
+        return await this.commandBus.execute<EmailResendingCommand, void>(new EmailResendingCommand(email))
     }
 
     @UseGuards(ThrottlerGuard)
@@ -68,7 +75,7 @@ export class AuthController {
     ) {
         const { email } = body
 
-        return await this.authService.passwordRecovery(email)
+        return await this.commandBus.execute<PasswordRecoveryCommand, void>(new PasswordRecoveryCommand(email))
     }
 
     @UseGuards(ThrottlerGuard)
@@ -77,7 +84,7 @@ export class AuthController {
     async newPassword (
         @Body() body: NewPasswordRecoveryInputModel
     ): Promise<void> {
-        return await this.authService.newPassword(body)
+        return await this.commandBus.execute<UpdatePasswordCommand, void>(new UpdatePasswordCommand({...body}))
     }
 
     @Get('me')

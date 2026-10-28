@@ -1,12 +1,15 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthService } from "../../application/auth.service.js";
 import { Strategy } from "passport-local"
 import { PassportStrategy } from '@nestjs/passport';
 import { UserContextDto } from "../dto/user-context.dto.js";
+import { QueryBus } from "@nestjs/cqrs";
+import { ValidateUserQuery } from "../../application/queries/validate-user.query.js";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-    constructor(private authService: AuthService) {
+    constructor(
+        private queryBus: QueryBus
+    ) {
         super({ 
             usernameField: 'loginOrEmail',
             passwordField: 'password'
@@ -15,10 +18,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     //validate возвращает то, что впоследствии будет записано в req.user
     async validate(
-        username: string, 
+        loginOrEmail: string, 
         password: string
     ): Promise<UserContextDto> {
-        const user = await this.authService.validateUser(username, password);
+        const user = await this.queryBus.execute(new ValidateUserQuery(loginOrEmail, password))
         if (!user) {
             throw new UnauthorizedException('Unauthorized')
         }

@@ -13,6 +13,14 @@ import { LocalStrategy } from './guards/local/local.strategy.js';
 import { EmailExamples } from '../notification/email.examples.js';
 import { JwtStrategy } from './guards/bearer/jwt.strategy.js';
 import { AuthQueryRepository } from './infrastructure/auth.query-repository.js';
+import { CreateUserUseCase } from './application/usecases/create-user.usecase.js';
+import { PasswordService } from './application/adapters/password.service.js';
+import { DeleteUserCommand } from './application/usecases/delete-user.usecase.js';
+
+const userAuthUseCases = [
+  CreateUserUseCase,
+  DeleteUserCommand
+]
 
 @Module({
   imports: [
@@ -32,7 +40,10 @@ import { AuthQueryRepository } from './infrastructure/auth.query-repository.js';
     AuthQueryRepository,
     LocalStrategy,
     JwtStrategy,
-    EmailExamples
+    EmailExamples,
+    PasswordService,
+
+    ...userAuthUseCases
   ],
   exports: [UsersService, UsersRepository]
 })
