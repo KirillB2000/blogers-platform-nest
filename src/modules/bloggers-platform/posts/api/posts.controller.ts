@@ -1,7 +1,6 @@
 import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete } from '@nestjs/common';
 import { PostInputModel } from './inputDto/post.input-dto.js';
 import { PostsQwRepo } from '../infrastructure/posts.query-repository.js';
-import { PostsService } from '../application/posts.service.js';
 import { PostViewModel } from './viewDto/post.view-dto.js';
 import { GetPostsQueryParams } from './inputDto/get-posts-query-params.input-dto.js';
 import { PostPagindatedViewDto } from './viewDto/posts.paginated.view-dto.js';
@@ -9,6 +8,10 @@ import { GetCommentQueryParams } from '../../comments/api/inputDto/get-comments-
 import { CommentsPaginatedViewDto } from '../../comments/api/viewDto/comments.paginated.view-dto.js';
 import { CommentsQwRepo } from '../../comments/infrastructure/comments.query-repository.js';
 import { PostsRepository } from '../infrastructure/posts.repository.js';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
+import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
+import { DeletePostCommand } from '../application/usecases/delete-post.usecase.js';
 
 @Controller('posts')
 export class PostsController {
@@ -16,15 +19,20 @@ export class PostsController {
     constructor (
         private postsQwRepo: PostsQwRepo,
         private postsRepository: PostsRepository,
-        private postsService: PostsService,
-        private commentsQwRepo: CommentsQwRepo
+        private commentsQwRepo: CommentsQwRepo,
+
+        private commandBus: CommandBus
     ) {}
 
     @Post()
     async createPost (
         @Body() body: PostInputModel
     ): Promise<PostViewModel> { 
-        return await this.postsService.createPost(body)
+        const id = await this.commandBus.execute<CreatePostCommand, string>(new CreatePostCommand({...body}))
+
+        const postView = await this.postsQwRepo.getByIdOrFail(id)
+
+        return postView
     }
 
     @Get()
@@ -47,7 +55,7 @@ export class PostsController {
         @Param('id') id: string,
         @Body() body: PostInputModel
     ): Promise<void> {
-        return await this.postsService.updatePost(id, body)
+        return await this.commandBus.execute<UpdatePostCommand, void>(new UpdatePostCommand(id, {...body}))
     }
 
     @Delete(':id')
@@ -55,7 +63,7 @@ export class PostsController {
     async deletePostById (
         @Param('id') id: string
     ): Promise<void> {
-        await this.postsService.deletePost(id)
+        await this.commandBus.execute<DeletePostCommand, void>(new DeletePostCommand(id))
     }
 
     // Comment

@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { UserInputModel } from './inputDto/uesrs.input-dto.js';
-import { AuthService } from '../application/auth.service.js';
 import { RegistrationConfirmationCodeModel } from './inputDto/register-confirm-code.input-dto.js';
 import { RegistrationEmailResending } from './inputDto/register-email-resending.input-dto.js';
 import { LoginSuccessViewModel } from './viewDto/login-success.view-dto.js';
@@ -24,7 +23,6 @@ import { UpdatePasswordCommand } from '../application/usecases/update-password.u
 @Controller('auth')
 export class AuthController {
     constructor (
-        private authService: AuthService,
         private authQwRepo: AuthQueryRepository,
         private commandBus: CommandBus
     ) {}

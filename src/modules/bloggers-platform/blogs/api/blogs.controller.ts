@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
-import { BlogsService } from '../application/blogs.service.js';
 import { BlogsQwRepo } from '../infrastructure/blogs.query-repository.js';
 import { BlogInputModel } from './inputDto/blogs.input-dto.js';
 import { BlogViewModel } from './viewDto/blogs.view-dto.js';
@@ -11,19 +10,22 @@ import { PostPagindatedViewDto } from '../../posts/api/viewDto/posts.paginated.v
 import { PostsQwRepo } from '../../posts/infrastructure/posts.query-repository.js';
 import { PostViewModel } from '../../posts/api/viewDto/post.view-dto.js';
 import { BlogPostInputModel } from './inputDto/blog-post.input-dto.js';
-import { PostsService } from '../../posts/application/posts.service.js';
 import { PostInputModel } from '../../posts/api/inputDto/post.input-dto.js';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.js';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
+import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase.js';
 
 @Controller('blogs')
 export class BlogsController {
 
     constructor (
         private postsQwRepo: PostsQwRepo,
-        private postsService: PostsService,
-
         private blogsQwRepo: BlogsQwRepo,
         private blogsRepository: BlogsRepository,
-        private blogsService: BlogsService
+
+        private commandBus: CommandBus
     ) {}
 
     @Get()
@@ -37,7 +39,7 @@ export class BlogsController {
     async createBlog (
         @Body() body: BlogInputModel
     ): Promise<BlogViewModel> {
-        const blogId = await this.blogsService.createBlog(body)
+        const blogId = await this.commandBus.execute<CreateBlogCommand, string>(new CreateBlogCommand({...body}))
 
         const blog = await this. blogsQwRepo.getBlogByIdOrFail(blogId)
         return blog
@@ -56,7 +58,7 @@ export class BlogsController {
         @Param('id') id: string,
         @Body() body: BlogInputModel
     ): Promise<void> {
-        await this.blogsService.updateBlog(id, body)
+        await this.commandBus.execute<UpdateBlogCommand, void>(new UpdateBlogCommand(id, {...body}))
     }
 
     @Delete(':id')
@@ -64,7 +66,7 @@ export class BlogsController {
     async deleteBlogById (
         @Param('id') id: string
     ): Promise<void> {
-        await this.blogsService.deleteBlog(id)
+        await this.commandBus.execute<DeleteBlogCommand, void>(new DeleteBlogCommand(id))
     }
 
     // Posts
@@ -85,6 +87,10 @@ export class BlogsController {
     ): Promise<PostViewModel> {
         const correctDto: PostInputModel = {...body, blogId}
 
-        return await this.postsService.createPost(correctDto)
+        const postId = await this.commandBus.execute<CreatePostCommand, string>(new CreatePostCommand(correctDto))
+
+        const postViewData = await this.postsQwRepo.getByIdOrFail(postId)
+
+        return postViewData
     }
 }
