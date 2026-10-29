@@ -4,6 +4,7 @@ import { LikesInfo, LikesInfoSchema } from "./likes-info.schema.js";
 import { HydratedDocument, Model } from "mongoose";
 import { CreateCommentDomainDto } from "./dto/create-comment.domain-dto.js";
 import { ForbiddenException } from "@nestjs/common";
+import { LikeStatus } from "../../../../core/types/like-statuses.js";
 
 export const contentConstraints = {
     minLength: 20,
@@ -71,6 +72,16 @@ export class Comment {
         }
 
         this.content = content
+    }
+
+    async updateLikeCounters(oldStatus: LikeStatus, newStatus: LikeStatus) {
+        if (oldStatus === newStatus ) return
+
+        if (oldStatus === LikeStatus.Like) this.likesInfo.likesCount--
+        if (oldStatus === LikeStatus.Dislike) this.likesInfo.dislikesCount--
+
+        if (newStatus === LikeStatus.Like) this.likesInfo.likesCount++
+        if (newStatus === LikeStatus.Dislike) this.likesInfo.dislikesCount++
     }
 }
 

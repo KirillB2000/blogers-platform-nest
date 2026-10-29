@@ -8,6 +8,8 @@ import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guar
 import { DeleteCommentCommand } from '../application/delete-comment.usecase.js';
 import { CommentInputModel } from './inputDto/create-comment.input-dto.js';
 import { UpdateCommentCommand } from '../application/update-comment.usecase.js';
+import { LikeInputModel } from './inputDto/like-status.input-dto.js';
+import { UpdateCommentLikeStatusCommand } from '../application/update-comment-like-status.usecase.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -47,6 +49,20 @@ export class CommentsController {
         const { content } = body
 
         await this.commandBus.execute<UpdateCommentCommand, void>(new UpdateCommentCommand(userId, commentId, content))
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Put(':commentId/like-status')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async updateLikeStatus (
+        @ExtractUserFromRequest() user: UserContextDto,
+        @Param('commentId') commentId: string,
+        @Body() body: LikeInputModel
+    ) {
+        const userId = user.id
+        const { likeStatus } = body
+
+        await this.commandBus.execute<UpdateCommentLikeStatusCommand, void>(new UpdateCommentLikeStatusCommand(userId, commentId, likeStatus))
     }
 
 }
