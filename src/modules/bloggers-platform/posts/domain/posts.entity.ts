@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { ExtendedLikesInfo, ExtendedLikesInfoSchema } from "./extendedLike.schema.js";
-import { CreatePostDomainDto } from "./dto/create-post.domain.js";
+import { CreatePostDomainDto } from "./dto/create-post.domain-dto.js";
 import { LikeStatus } from "../../../../core/types/like-statuses.js";
 import { HydratedDocument, Model } from "mongoose";
-import { UpdatePostDomainDto } from "./dto/update-post.domain.js";
+import { UpdatePostDomainDto } from "./dto/update-post.domain-dto.js";
 
 @Schema({timestamps: true})
 export class Post {

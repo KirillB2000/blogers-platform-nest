@@ -13,14 +13,10 @@ export class PostsRepository {
         await postDoc.save()
     }
 
-    async findByIdOrFail (
+    async findById (
         id: string
-    ): Promise<PostDocument> {
+    ): Promise<PostDocument | null> {
         const postDoc = await this.PostModel.findById(id)
-
-        if(!postDoc) {
-            throw new NotFoundException('Post not found')
-        }
 
         return postDoc
     }

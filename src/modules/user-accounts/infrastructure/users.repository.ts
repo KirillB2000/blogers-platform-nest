@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User, UserDocument, type UserModelType } from "../domain/user.entity.js";
 
@@ -10,16 +10,18 @@ export class UsersRepository {
         await user.save();
     }
 
-    async delete(
+    async deleteById(
         id: string
-    ): Promise<void> {
-        await this.UserModel.deleteOne({ _id: id })
+    ): Promise<boolean> {
+        const deletionResult = await this.UserModel.deleteOne({ id: id })
+
+        return deletionResult.deletedCount > 0
     }
 
     async findById (
         id: string
     ): Promise<UserDocument | null> {
-        const userDoc = this.UserModel.findOne({_id: id})
+        const userDoc = this.UserModel.findOne({_id: id}).lean()
 
         return userDoc
     }
@@ -93,5 +95,13 @@ export class UsersRepository {
             .exec()
 
         return userDoc
+    }
+
+    async countUsersById(
+        userId: string
+    ): Promise<boolean> {
+        const countsOfUsers = await this.UserModel.countDocuments({id: userId})
+
+        return countsOfUsers > 0
     }
 }

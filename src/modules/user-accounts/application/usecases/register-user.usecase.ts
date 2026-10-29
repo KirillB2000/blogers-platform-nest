@@ -52,7 +52,7 @@ export class RegisterUserUseCase implements ICommandHandler<RegisterUserCommand,
 
         await this.usersRepository.save(user)
 
-        this.emailService
+        this.emailService // TODO: create EventHandler for email
             .sendConfirmationEmail(user.email, user.emailConfirmationInfo.confirmationCode)
             .catch(console.error)
     }

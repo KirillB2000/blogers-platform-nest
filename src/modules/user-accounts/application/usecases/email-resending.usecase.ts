@@ -31,7 +31,7 @@ export class EmailResendingUseCase implements ICommandHandler<EmailResendingComm
 
         await this.usersRepository.save(userByEmail)
 
-        this.emailService
+        this.emailService // TODO: create EventHandler for email
             .sendConfirmationEmail(userByEmail.email, userByEmail.emailConfirmationInfo.confirmationCode)
             .catch(console.error)
     }

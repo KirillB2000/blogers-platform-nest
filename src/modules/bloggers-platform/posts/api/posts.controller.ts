@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete } from '@nestjs/common';
+import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete, UseGuards } from '@nestjs/common';
 import { PostInputModel } from './inputDto/post.input-dto.js';
 import { PostsQwRepo } from '../infrastructure/posts.query-repository.js';
 import { PostViewModel } from './viewDto/post.view-dto.js';
@@ -12,6 +12,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
 import { DeletePostCommand } from '../application/usecases/delete-post.usecase.js';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard.js';
+import { CommentInputModel } from '../../comments/api/inputDto/create-comment.input-dto.js';
+import { CommentViewModel } from '../../comments/api/viewDto/comments.view-dto.js';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto.js';
+import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
+import { CreateCommentCommand } from '../../comments/application/create-comment.usecase.js';
 
 @Controller('posts')
 export class PostsController {
@@ -72,8 +78,26 @@ export class PostsController {
         @Param('postId') postId: string,
         @Query() query: GetCommentQueryParams
     ): Promise<CommentsPaginatedViewDto> {
-        await this.postsRepository.findByIdOrFail(postId)
+        await this.postsRepository.findById(postId)
 
         return await this.commentsQwRepo.getAll(postId, query)
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Post(':postId/comments')
+    async createComment (
+        @Param('postId') postId: string,
+        @Body() body: CommentInputModel,
+        @ExtractUserFromRequest() user: UserContextDto 
+    ): Promise<CommentViewModel> {
+        const { content } = body
+        const userId = user.id
+
+        const id = await this.commandBus.execute<CreateCommentCommand, string>(new CreateCommentCommand(userId, postId, content))
+
+        const commentView = this.commentsQwRepo.getCommentByIdOrFail(id)
+
+        return commentView
+    }
+
 }

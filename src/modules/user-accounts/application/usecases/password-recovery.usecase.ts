@@ -30,7 +30,7 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
 
         await this.usersRepository.save(userByEmail)
 
-        this.emailService
+        this.emailService // TODO: create EventHandler for email
             .sendRecoveryPassword(recoveryCode, userByEmail.email)
             .catch(console.error)
     }
