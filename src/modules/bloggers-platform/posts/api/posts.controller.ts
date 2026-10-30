@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete, UseGuards, NotFoundException } from '@nestjs/common';
 import { PostInputModel } from './inputDto/post.input-dto.js';
 import { PostsQwRepo } from '../infrastructure/posts.query-repository.js';
 import { PostViewModel } from './viewDto/post.view-dto.js';
@@ -18,6 +18,7 @@ import { CommentViewModel } from '../../comments/api/viewDto/comments.view-dto.j
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto.js';
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
 import { CreateCommentCommand } from '../../comments/application/create-comment.usecase.js';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
 
 @Controller('posts')
 export class PostsController {
@@ -73,14 +74,23 @@ export class PostsController {
     }
 
     // Comment
+    @UseGuards(JwtOptionalAuthGuard)
     @Get(':postId/comments')
     async getCommentsListForPostById(
         @Param('postId') postId: string,
-        @Query() query: GetCommentQueryParams
+        @Query() query: GetCommentQueryParams,
+        @ExtractUserFromRequest() user?: UserContextDto
     ): Promise<CommentsPaginatedViewDto> {
-        await this.postsRepository.findById(postId)
 
-        return await this.commentsQwRepo.getAll(postId, query)
+        const userId = user ? user.id : null
+
+        const post = await this.postsRepository.findById(postId)
+
+        if (!post) {
+            throw new NotFoundException('Post not found')
+        }
+
+        return await this.commentsQwRepo.getAll(postId, query, userId)
     }
 
     @UseGuards(JwtAuthGuard)

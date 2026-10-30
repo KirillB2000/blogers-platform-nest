@@ -41,6 +41,8 @@ export class LikeStatusComment {
 
 export const LikeStatusCommentSchema = SchemaFactory.createForClass(LikeStatusComment)
 
+LikeStatusCommentSchema.index({ userId: 1, commentId: 1 })
+
 LikeStatusCommentSchema.loadClass(LikeStatusComment)
 
 export type LikeStatusCommentDocument = HydratedDocument<LikeStatusComment>

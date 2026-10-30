@@ -10,6 +10,7 @@ import { CommentInputModel } from './inputDto/create-comment.input-dto.js';
 import { UpdateCommentCommand } from '../application/update-comment.usecase.js';
 import { LikeInputModel } from './inputDto/like-status.input-dto.js';
 import { UpdateCommentLikeStatusCommand } from '../application/update-comment-like-status.usecase.js';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -19,11 +20,14 @@ export class CommentsController {
         private commandBus: CommandBus
     ) {}
 
+    @UseGuards(JwtOptionalAuthGuard)
     @Get(':id')
     async getCommentById(
-        @Param('id') id: string
+        @Param('id') id: string,
+        @ExtractUserFromRequest() user?: UserContextDto
     ): Promise<CommentViewModel> {
-        return this.commentsQwRepo.getCommentByIdOrFail(id)
+        const userId = user ? user.id : null
+        return this.commentsQwRepo.getCommentByIdOrFail(id, userId)
     }
 
     @UseGuards(JwtAuthGuard)

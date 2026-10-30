@@ -4,32 +4,48 @@ import { Comment, type CommentModelType } from "../domain/comments.entity.js";
 import { InjectModel } from "@nestjs/mongoose";
 import { GetCommentQueryParams } from "../api/inputDto/get-comments-qury-params.input-dto.js";
 import { CommentsPaginatedViewDto } from "../api/viewDto/comments.paginated.view-dto.js";
+import { LikeStatusComment, type LikeStatusCommentModelType } from "../domain/comment-like-status.entity.js";
+import { LikeStatus } from "../../../../core/types/like-statuses.js";
 
 @Injectable()
 export class CommentsQwRepo {
     
     constructor(
         @InjectModel(Comment.name)
-        private CommentModel: CommentModelType
+        private CommentModel: CommentModelType,
+        @InjectModel(LikeStatusComment.name)
+        private LikeStatusCommentModel: LikeStatusCommentModelType
     ) {}
 
     async getCommentByIdOrFail(
-        id: string
+        commentId: string,
+        userId?: string | null
     ): Promise<CommentViewModel> {
-        const commentDoc = await this.CommentModel.findById(id).exec()
+
+        const commentDoc = await this.CommentModel.findById(commentId).lean().exec()
 
         if (!commentDoc) {
             throw new NotFoundException('Comment not found')
         }
 
-        const commentViewModel = CommentViewModel.mapToView(commentDoc)
+        let likeStatus = LikeStatus.None
+        if (userId) {
+            const likeStatusDb = await this.LikeStatusCommentModel.findOne(
+                { userId: userId, commentId: commentId }
+            )
+
+            if (likeStatusDb) likeStatus = likeStatusDb.myStatus
+        }
+
+        const commentViewModel = CommentViewModel.mapToView(commentDoc, likeStatus)
 
         return commentViewModel
     }
 
     async getAll (
         postId: string,
-        query: GetCommentQueryParams
+        query: GetCommentQueryParams,
+        userId?: string | null
     ): Promise <CommentsPaginatedViewDto> {
         const {
             pageNumber,
@@ -46,9 +62,26 @@ export class CommentsQwRepo {
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
             .limit(pageSize)
+            .lean()
             .exec()
 
-        const items = result.map(CommentViewModel.mapToView)
+        let likesMap: Record<string, LikeStatus> = {}
+        const commentsIds = result.map(comm => comm.id)
+
+        if (userId) {
+            const likeStatusesDocuments = await this.LikeStatusCommentModel
+                .find({userId: userId, commentId: {$in: commentsIds}})
+
+            likeStatusesDocuments.forEach( doc => {
+                likesMap[doc.commentId] = doc.myStatus
+            })
+        }
+
+        const items = result.map(comment => {
+            const likeStatus = likesMap[comment.id] || LikeStatus.None
+
+            return CommentViewModel.mapToView(comment, likeStatus)
+        })
         const totalCount = await this.CommentModel.countDocuments(filter)
 
         return CommentsPaginatedViewDto.mapToView({
