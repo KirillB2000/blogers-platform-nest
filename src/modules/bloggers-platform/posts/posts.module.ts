@@ -9,6 +9,7 @@ import { PostsRepository } from './infrastructure/posts.repository.js';
 import { CreatePostUseCase } from './application/usecases/create-post.usecase.js';
 import { DeletePostUseCase } from './application/usecases/delete-post.usecase.js';
 import { UpdatePostUseCase } from './application/usecases/update-post.usecase.js';
+import { LikeStatusPosts, LikeStatusPostsSchema } from './domain/posts-like-status.entity.js';
 
 const postUseCases = [
   CreatePostUseCase,
@@ -18,7 +19,7 @@ const postUseCases = [
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{name: Post.name, schema: PostSchema}]),
+    MongooseModule.forFeature([{name: Post.name, schema: PostSchema}, {name: LikeStatusPosts.name, schema: LikeStatusPostsSchema}]),
     forwardRef(() => BlogsModule),
     CommentsModule
   ],

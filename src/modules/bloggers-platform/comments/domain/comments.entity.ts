@@ -11,8 +11,6 @@ export const contentConstraints = {
     maxLength: 300
 }
 
-type LikeInfoForDb = Omit<LikesInfo, 'myStatus'>
-
 @Schema({timestamps: true})
 export class Comment {
     @Prop({
@@ -36,7 +34,7 @@ export class Comment {
     @Prop({
         type: LikesInfoSchema
     })
-    likesInfo: LikeInfoForDb
+    likesInfo: LikesInfo
 
     createdAt: Date
     updatedAt: Date

@@ -21,6 +21,7 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<UpdateCom
         @InjectModel(LikeStatusComment.name)
         private LikeStatusCommentModel: LikeStatusCommentModelType,
         private commentsRepository: CommentsRepositroy,
+        private usersRepository: UsersRepository,
         private commentsLikeStatusRepository: CommentsLikeStatusRepository
     ) {}
 
@@ -33,6 +34,12 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<UpdateCom
 
         if (!comment) {
             throw new NotFoundException('Comment not found')
+        }
+
+        const user = this.usersRepository.countUsersById(userId)
+
+        if (!user) {
+            throw new UnauthorizedException('Unauthorized')
         }
 
         let likeStatusDocument = await this.commentsLikeStatusRepository.findLikeStatusForSpecificComment(userId, commentId)

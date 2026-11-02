@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { LikeStatus } from "../../../../core/types/like-statuses.js";
 
 
 @Schema({
@@ -17,13 +16,6 @@ export class LikesInfo {
         default: 0
     })
     dislikesCount: number
-
-    @Prop({
-            type: String,
-            enum: LikeStatus,
-            default: LikeStatus.None
-        })
-        myStatus: LikeStatus
 }
 
 export const LikesInfoSchema = SchemaFactory.createForClass(LikesInfo)

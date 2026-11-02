@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { BlogsQwRepo } from '../infrastructure/blogs.query-repository.js';
 import { BlogInputModel } from './inputDto/blogs.input-dto.js';
 import { BlogViewModel } from './viewDto/blogs.view-dto.js';
@@ -16,6 +16,9 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.j
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase.js';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard.js';
+import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -70,14 +73,17 @@ export class BlogsController {
     }
 
     // Posts
+    @UseGuards(JwtAuthGuard)
     @Get(':blogId/posts')
     async getPostsListForBlogById (
         @Param('blogId') blogId: string,
-        @Query() query: GetPostsQueryParams
+        @Query() query: GetPostsQueryParams,
+        @ExtractUserFromRequest() user?: UserContextDto
     ): Promise<PostPagindatedViewDto> {
+        const userId = user ? user.id : null
         await this.blogsRepository.findByIdOrFail(blogId)
 
-        return this.postsQwRepo.getAll(query, blogId)
+        return this.postsQwRepo.getAll(query, userId, blogId)
     }
 
     @Post(':blogId/posts')

@@ -59,9 +59,7 @@ export class Post {
 
         post.extendedLikesInfo = {
             likesCount: 0,
-            dislikesCount: 0,
-            myStatus: LikeStatus.None,
-            newestLikes: []
+            dislikesCount: 0
         }
 
         return post as PostDocument
@@ -73,6 +71,19 @@ export class Post {
         this.content = dto.content
         this.blogId = dto.blogId
         this.blogName = dto.blogName
+    }
+
+    updateLikeCounters (
+        oldStatus: LikeStatus,
+        newStatus: LikeStatus
+    ) {
+        if (oldStatus === newStatus) return
+
+        if (oldStatus === LikeStatus.Like) this.extendedLikesInfo.likesCount--
+        if (oldStatus === LikeStatus.Dislike) this.extendedLikesInfo.dislikesCount--
+
+        if (newStatus === LikeStatus.Like) this.extendedLikesInfo.likesCount++
+        if (newStatus === LikeStatus.Dislike) this.extendedLikesInfo.dislikesCount++
     }
 }
 

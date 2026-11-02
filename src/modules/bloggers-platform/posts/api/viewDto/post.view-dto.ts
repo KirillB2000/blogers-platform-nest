@@ -1,5 +1,7 @@
+import { LikeStatus } from "../../../../../core/types/like-statuses.js"
 import { PostDocument } from "../../domain/posts.entity.js"
 import { ExtendedLikesInfoViewModel } from "./extendedLikes.view-dto.js"
+import { LikeDetailsViewModel } from "./likeDetails.view-dto.js"
 
 export class PostViewModel {
     id: string
@@ -12,7 +14,9 @@ export class PostViewModel {
     extendedLikesInfo: ExtendedLikesInfoViewModel
 
     static mapToView (
-        postDoc: PostDocument
+        postDoc: PostDocument,
+        myStatus: LikeStatus,
+        newestLikes: LikeDetailsViewModel[] | []
     ) {
         const postViewM = new PostViewModel()
 
@@ -23,7 +27,12 @@ export class PostViewModel {
         postViewM.blogId = postDoc.blogId
         postViewM.blogName = postDoc.blogName
         postViewM.createdAt = postDoc.createdAt
-        postViewM.extendedLikesInfo = postDoc.extendedLikesInfo
+        postViewM.extendedLikesInfo = {
+            dislikesCount: 0,
+            likesCount: 0,
+            myStatus: myStatus,
+            newestLikes: newestLikes
+        }
 
         return postViewM
     }

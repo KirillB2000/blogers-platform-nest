@@ -8,7 +8,7 @@ import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guar
 import { DeleteCommentCommand } from '../application/delete-comment.usecase.js';
 import { CommentInputModel } from './inputDto/create-comment.input-dto.js';
 import { UpdateCommentCommand } from '../application/update-comment.usecase.js';
-import { LikeInputModel } from './inputDto/like-status.input-dto.js';
+import { LikeInputModel } from '../../../../core/dto/like-status.input-dto.js';
 import { UpdateCommentLikeStatusCommand } from '../application/update-comment-like-status.usecase.js';
 import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
 

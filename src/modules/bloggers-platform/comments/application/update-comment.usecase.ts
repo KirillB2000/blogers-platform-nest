@@ -23,6 +23,12 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
     ): Promise<void> {
         const { userId, commentId, content: content } = command
 
+        const user = this.usersRepository.countUsersById(userId)
+
+        if (!user) {
+            throw new UnauthorizedException('Unauthorized')
+        }
+
         const comment = await this.commentsRepository.findById(commentId)
         if (!comment) {
             throw new NotFoundException('Comment not found')

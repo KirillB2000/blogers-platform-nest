@@ -5,5 +5,5 @@ export class ExtendedLikesInfoViewModel {
     likesCount: number
     dislikesCount: number
     myStatus: LikeStatus
-    newestLikes: LikeDetailsViewModel[] | null
+    newestLikes: LikeDetailsViewModel[] | []
 }

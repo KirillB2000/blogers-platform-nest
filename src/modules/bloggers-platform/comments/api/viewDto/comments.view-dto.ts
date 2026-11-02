@@ -1,14 +1,14 @@
 import { LikeStatus } from "../../../../../core/types/like-statuses.js"
-import { CommentatorInfo } from "../../domain/commentator-info.schema.js"
 import { CommentDocument } from "../../domain/comments.entity.js"
-import { LikesInfo } from "../../domain/likes-info.schema.js"
+import { CommentatorInfoViewDto } from "./commentator-info.view-dto.js"
+import { LikesInfoViewDto } from "./likes-info-comment.view-dto.js"
 
 export class CommentViewModel {
     id: string
     content: string
-    commentatorInfo: CommentatorInfo
+    commentatorInfo: CommentatorInfoViewDto
     createdAt: Date
-    likesInfo: LikesInfo
+    likesInfo: LikesInfoViewDto
 
     static mapToView(
         comment: CommentDocument,

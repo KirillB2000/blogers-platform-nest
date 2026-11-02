@@ -1,5 +1,5 @@
 import { IsEnum } from "class-validator";
-import { LikeStatus } from "../../../../../core/types/like-statuses.js";
+import { LikeStatus } from "../types/like-statuses.js";
 
 export class LikeInputModel {
 

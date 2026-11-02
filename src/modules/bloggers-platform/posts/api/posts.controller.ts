@@ -19,6 +19,8 @@ import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.d
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
 import { CreateCommentCommand } from '../../comments/application/create-comment.usecase.js';
 import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
+import { LikeInputModel } from '../../../../core/dto/like-status.input-dto.js';
+import { UpdatePostLikeStatusCommand } from '../application/usecases/update-post-like-status.usecase.js';
 
 @Controller('posts')
 export class PostsController {
@@ -42,18 +44,25 @@ export class PostsController {
         return postView
     }
 
+    @UseGuards(JwtOptionalAuthGuard)
     @Get()
     async getPostsList(
-        @Query() query: GetPostsQueryParams
+        @Query() query: GetPostsQueryParams,
+        @ExtractUserFromRequest() user?: UserContextDto
     ): Promise<PostPagindatedViewDto> {
-        return await this.postsQwRepo.getAll(query)
+        const userId = user ? user.id : null
+
+        return await this.postsQwRepo.getAll(query, userId)
     }
 
+    @UseGuards(JwtOptionalAuthGuard)
     @Get(':id')
     async getPostById (
-        @Param('id') id: string
+        @Param('id') id: string,
+        @ExtractUserFromRequest() user?: UserContextDto
     ): Promise<PostViewModel> {
-        return await this.postsQwRepo.getByIdOrFail(id)
+        const userId = user ? user.id : null
+        return await this.postsQwRepo.getByIdOrFail(id, userId)
     }
 
     @Put(':id')
@@ -96,9 +105,9 @@ export class PostsController {
     @UseGuards(JwtAuthGuard)
     @Post(':postId/comments')
     async createComment (
+        @ExtractUserFromRequest() user: UserContextDto,
         @Param('postId') postId: string,
-        @Body() body: CommentInputModel,
-        @ExtractUserFromRequest() user: UserContextDto 
+        @Body() body: CommentInputModel, 
     ): Promise<CommentViewModel> {
         const { content } = body
         const userId = user.id
@@ -110,4 +119,15 @@ export class PostsController {
         return commentView
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Put(':postId/like-status')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async updateLikeSpecPost (
+        @ExtractUserFromRequest() user: UserContextDto,
+        @Param('postId') postId: string,
+        @Body() body: LikeInputModel
+    ) {
+        const userId = user.id
+        await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(new UpdatePostLikeStatusCommand(userId, postId, body.likeStatus))
+    }
 }
