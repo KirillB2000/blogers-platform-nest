@@ -1,12 +1,12 @@
 import { BadRequestException, INestApplication, ValidationError, ValidationPipe } from "@nestjs/common";
 import { HttpExceptionFilter } from "../httpExceptionFilter.filter.js";
+import cookieParser from "cookie-parser";
 
 export function appSetup(app: INestApplication) {
     
     app.useGlobalPipes(
         new ValidationPipe({
             transform: true,
-            stopAtFirstError: true,
 
             exceptionFactory: (errors) => {
                 const errorsForResponse: {message: string, field: string}[] = []
@@ -32,5 +32,6 @@ export function appSetup(app: INestApplication) {
     app.useGlobalFilters(new HttpExceptionFilter())
 
     app.enableCors()
+    app.use(cookieParser())
     //app.setGlobalPrefix('api')
 }

@@ -36,7 +36,7 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<UpdateCom
             throw new NotFoundException('Comment not found')
         }
 
-        const user = this.usersRepository.countUsersById(userId)
+        const user = await this.usersRepository.countUsersById(userId)
 
         if (!user) {
             throw new UnauthorizedException('Unauthorized')

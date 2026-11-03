@@ -11,11 +11,14 @@ import { DeletePostUseCase } from './application/usecases/delete-post.usecase.js
 import { UpdatePostUseCase } from './application/usecases/update-post.usecase.js';
 import { LikeStatusPosts, LikeStatusPostsSchema } from './domain/posts-like-status.entity.js';
 import { LikeStatusPostsRepository } from './infrastructure/posts-like-status.repository.js';
+import { UpdatePostLikeStatusUseCase } from './application/usecases/update-post-like-status.usecase.js';
+import { UserAccountsModule } from '../../user-accounts/user-accounts.module.js';
 
 const postUseCases = [
   CreatePostUseCase,
   DeletePostUseCase,
-  UpdatePostUseCase
+  UpdatePostUseCase,
+  UpdatePostLikeStatusUseCase
 ]
 
 @Module({
@@ -27,7 +30,8 @@ const postUseCases = [
     ]),
 
     forwardRef(() => BlogsModule),
-    CommentsModule
+    forwardRef(() => CommentsModule),
+    UserAccountsModule
   ],
   controllers: [PostsController],
   providers: [
@@ -37,6 +41,6 @@ const postUseCases = [
 
     ...postUseCases
   ],
-  exports: [PostsQwRepo]
+  exports: [PostsQwRepo, PostsRepository]
 })
 export class PostsModule {}

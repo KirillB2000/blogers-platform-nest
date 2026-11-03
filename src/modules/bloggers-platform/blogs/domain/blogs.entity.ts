@@ -3,26 +3,32 @@ import { HydratedDocument, Model } from "mongoose"
 import { CreateBlogDomainDto } from "./dto/create-blog.domain.js"
 import { BlogInputModel } from "../api/inputDto/blogs.input-dto.js"
 
+export const blogsRestrictions = {
+    nameMaxLength: 15,
+    descriptionMaxLength: 500,
+    websiteUrlMaxLength: 100
+}
+
 @Schema({timestamps: true})
 export class Blog {
     @Prop({
         required: true,
         type: String,
-        maxLength: 15
+        maxLength: blogsRestrictions.nameMaxLength
     })
     name: string
 
     @Prop({
         required: true,
         type: String,
-        maxLength: 500
+        maxLength: blogsRestrictions.descriptionMaxLength
     })
     description: string
 
     @Prop({
         required: true,
         type: String,
-        maxLength: 100,
+        maxLength: blogsRestrictions.websiteUrlMaxLength,
     })
     websiteUrl: string
 

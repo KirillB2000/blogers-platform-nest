@@ -21,6 +21,7 @@ import { CreateCommentCommand } from '../../comments/application/create-comment.
 import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
 import { LikeInputModel } from '../../../../core/dto/like-status.input-dto.js';
 import { UpdatePostLikeStatusCommand } from '../application/usecases/update-post-like-status.usecase.js';
+import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard.js';
 
 @Controller('posts')
 export class PostsController {
@@ -33,10 +34,11 @@ export class PostsController {
         private commandBus: CommandBus
     ) {}
 
+    @UseGuards(BasicAuthGuard)
     @Post()
     async createPost (
         @Body() body: PostInputModel
-    ): Promise<PostViewModel> { 
+    ): Promise<PostViewModel> {
         const id = await this.commandBus.execute<CreatePostCommand, string>(new CreatePostCommand({...body}))
 
         const postView = await this.postsQwRepo.getByIdOrFail(id)
@@ -65,6 +67,7 @@ export class PostsController {
         return await this.postsQwRepo.getByIdOrFail(id, userId)
     }
 
+    @UseGuards(BasicAuthGuard)
     @Put(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updatePostById (
@@ -74,6 +77,7 @@ export class PostsController {
         return await this.commandBus.execute<UpdatePostCommand, void>(new UpdatePostCommand(id, {...body}))
     }
 
+    @UseGuards(BasicAuthGuard)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deletePostById (

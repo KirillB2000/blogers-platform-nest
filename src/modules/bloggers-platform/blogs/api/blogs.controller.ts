@@ -19,6 +19,7 @@ import { CreatePostCommand } from '../../posts/application/usecases/create-post.
 import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard.js';
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto.js';
+import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -38,6 +39,7 @@ export class BlogsController {
         return this.blogsQwRepo.getAll(query)
     }
 
+    @UseGuards(BasicAuthGuard)
     @Post()
     async createBlog (
         @Body() body: BlogInputModel
@@ -55,6 +57,7 @@ export class BlogsController {
         return this.blogsQwRepo.getBlogByIdOrFail(id)
     }
 
+    @UseGuards(BasicAuthGuard)
     @Put(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateBlogById(
@@ -64,6 +67,7 @@ export class BlogsController {
         await this.commandBus.execute<UpdateBlogCommand, void>(new UpdateBlogCommand(id, {...body}))
     }
 
+    @UseGuards(BasicAuthGuard)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteBlogById (
@@ -73,7 +77,6 @@ export class BlogsController {
     }
 
     // Posts
-    @UseGuards(JwtAuthGuard)
     @Get(':blogId/posts')
     async getPostsListForBlogById (
         @Param('blogId') blogId: string,
@@ -86,6 +89,7 @@ export class BlogsController {
         return this.postsQwRepo.getAll(query, userId, blogId)
     }
 
+    @UseGuards(BasicAuthGuard)
     @Post(':blogId/posts')
     async createPostForBlog (
         @Param('blogId') blogId: string,

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CommentsController } from './api/comments.controller.js';
 import { CommentsService } from './application/comments.service.js';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -11,8 +11,11 @@ import { CommentsRepositroy } from './infrastructure/comments.repository.js';
 import { LikeStatusComment, LikeStatusCommentSchema } from './domain/comment-like-status.entity.js';
 import { UpdateCommentLikeStatusUseCase } from './application/update-comment-like-status.usecase.js';
 import { CommentsLikeStatusRepository } from './infrastructure/comments-like-status.repository.js';
+import { CreateCommentUseCase } from './application/create-comment.usecase.js';
+import { PostsModule } from '../posts/posts.module.js';
 
 export const commentsUsecases = [
+  CreateCommentUseCase,
   DeleteCommentUseCase,
   UpdateCommentUseCase,
   UpdateCommentLikeStatusUseCase
@@ -24,7 +27,8 @@ export const commentsUsecases = [
       { name: Comment.name, schema: CommentsSchema },
       { name: LikeStatusComment.name, schema: LikeStatusCommentSchema }
     ]),
-    UserAccountsModule
+    UserAccountsModule,
+    forwardRef(() => PostsModule)
   ],
   controllers: [CommentsController],
   providers: [

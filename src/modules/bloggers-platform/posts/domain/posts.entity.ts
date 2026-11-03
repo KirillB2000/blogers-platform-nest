@@ -5,6 +5,12 @@ import { LikeStatus } from "../../../../core/types/like-statuses.js";
 import { HydratedDocument, Model } from "mongoose";
 import { UpdatePostDomainDto } from "./dto/update-post.domain-dto.js";
 
+export const postRestrictions = {
+    titleMaxLength: 30,
+    shortDescriptionMaxLength: 100,
+    contentMaxLength: 1000
+}
+
 @Schema({timestamps: true})
 export class Post {
 

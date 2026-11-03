@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
 import { UserInputModel } from './inputDto/uesrs.input-dto.js';
 import { RegistrationConfirmationCodeModel } from './inputDto/register-confirm-code.input-dto.js';
 import { RegistrationEmailResending } from './inputDto/register-email-resending.input-dto.js';
@@ -19,6 +19,8 @@ import { EmailConfirmationCommand } from '../application/usecases/email-conifrma
 import { EmailResendingCommand } from '../application/usecases/email-resending.usecase.js';
 import { PasswordRecoveryCommand } from '../application/usecases/password-recovery.usecase.js';
 import { UpdatePasswordCommand } from '../application/usecases/update-password.usecase.js';
+import { type Response } from 'express';
+import { TokensCredsAppDto } from '../application/dto/tokens-creds.app.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -31,9 +33,18 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
     async login(
-        @ExtractUserFromRequest() user: UserContextDto
+        @ExtractUserFromRequest() user: UserContextDto,
+        @Res({passthrough: true}) res: Response
     ): Promise<LoginSuccessViewModel> {
-        return await this.commandBus.execute<LoginUserCommand, LoginSuccessViewModel>(new LoginUserCommand(user.id))
+        const { accessToken, refreshToken } = await this.commandBus.execute<LoginUserCommand, TokensCredsAppDto>(new LoginUserCommand(user.id))
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict'
+        })
+
+        return { accessToken }
     }
 
     @UseGuards(ThrottlerGuard)

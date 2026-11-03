@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { LoginSuccessViewModel } from "../../api/viewDto/login-success.view-dto.js";
 import { JwtService } from "@nestjs/jwt";
+import { TokensCredsAppDto as TokensCredsAppDto } from "../dto/tokens-creds.app.dto.js";
 
 export class LoginUserCommand {
     constructor (
@@ -9,7 +9,7 @@ export class LoginUserCommand {
 }
 
 @CommandHandler(LoginUserCommand)
-export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, LoginSuccessViewModel>{
+export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, TokensCredsAppDto>{
     
     constructor (
         private jwtService: JwtService
@@ -19,12 +19,20 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, Login
     
     async execute(
         command: LoginUserCommand
-    ): Promise<LoginSuccessViewModel> {
+    ): Promise<TokensCredsAppDto> {
         const { userId } = command
 
         const payload = { sub: userId }
         const accessToken = this.jwtService.sign(payload)
 
-        return { accessToken }
+        const refreshToken = this.jwtService.sign(
+            { sub: userId, deviceId: 'fallback-device' }, //TODO: change deiveId later
+            {
+                secret: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+                expiresIn: '20d'
+            }
+        )
+
+        return { accessToken, refreshToken }
     }
 }

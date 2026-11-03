@@ -25,7 +25,7 @@ export class CommentsRepositroy {
     async findById(
         commentId: string
     ): Promise<CommentDocument | null> {
-        const commentDoc = this.CommentModel.findById(commentId).exec()
+        const commentDoc = await this.CommentModel.findById(commentId).exec()
 
         return commentDoc
     }
