@@ -5,14 +5,14 @@ import { App } from "supertest/types.js"
 import { AppModule } from "../../src/app.module.js"
 import { appSetup } from "../../src/setup/app.setup.js"
 import { getConnectionToken } from "@nestjs/mongoose"
-import { AuthTestHelper } from "./auth.test-helper.js"
+import { UserAuthTestHelper } from "./user-auth.test-helper.js"
 import { EmailService } from "../../src/modules/notification/email.service.js"
 import { MockInstance } from "vitest"
 
 describe('AuthController (e2e)', () => {
     let app: INestApplication<App>
     let connection: Connection
-    let authTestHelper: AuthTestHelper
+    let authTestHelper: UserAuthTestHelper
 
     let sendEmailMock: MockInstance<EmailService['sendConfirmationEmail']>
 
@@ -40,7 +40,7 @@ describe('AuthController (e2e)', () => {
             }
         }
 
-        authTestHelper = new AuthTestHelper(app)
+        authTestHelper = new UserAuthTestHelper(app)
     })
 
     beforeEach (async () => {

@@ -13,7 +13,7 @@ export class UsersRepository {
     async deleteById(
         id: string
     ): Promise<boolean> {
-        const deletionResult = await this.UserModel.deleteOne({ id: id })
+        const deletionResult = await this.UserModel.deleteOne({ _id: id })
 
         return deletionResult.deletedCount > 0
     }
@@ -21,7 +21,7 @@ export class UsersRepository {
     async findById (
         id: string
     ): Promise<UserDocument | null> {
-        const userDoc = this.UserModel.findOne({_id: id}).lean()
+        const userDoc = await this.UserModel.findOne({_id: id}).lean()
 
         return userDoc
     }
@@ -100,7 +100,7 @@ export class UsersRepository {
     async countUsersById(
         userId: string
     ): Promise<boolean> {
-        const countsOfUsers = await this.UserModel.countDocuments({id: userId})
+        const countsOfUsers = await this.UserModel.countDocuments({_id: userId})
 
         return countsOfUsers > 0
     }

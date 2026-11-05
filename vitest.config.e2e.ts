@@ -10,5 +10,7 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],
+    // Run e2e test files sequentially to avoid shared DB race conditions
+    fileParallelism: false,
   },
 });

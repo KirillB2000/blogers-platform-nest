@@ -42,7 +42,7 @@ export class Comment {
     static createInstance (
         domainDto: CreateCommentDomainDto
     ) {
-        const comment = new Comment()
+        const comment = new this()
 
         comment.content = domainDto.content
         comment.postId = domainDto.postId

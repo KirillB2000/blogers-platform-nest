@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from "@nestjs/common";
 import request, { Response } from 'supertest'
 import { BlogInputModel } from "../../src/modules/bloggers-platform/blogs/api/inputDto/blogs.input-dto.js";
 import { BasicAuthTest } from "../utils/basicAuthTest.js";
+import { BlogViewModel } from "../../src/modules/bloggers-platform/blogs/api/viewDto/blogs.view-dto.js";
 
 export class BlogTestsHelpers {
     constructor (
@@ -25,7 +26,7 @@ export class BlogTestsHelpers {
         name: string, 
         description: string,
         websiteUrl: string
-    ): Promise<Response> {
+    ): Promise<BlogViewModel> {
         const dto = BlogTestsHelpers.createBlogDtoDefault(name, description, websiteUrl)
         const basicAuthToken = this.basicAuthTest.generateBasicAuthToken()
 
@@ -35,6 +36,6 @@ export class BlogTestsHelpers {
             .send(dto)
             .expect(HttpStatus.CREATED)
 
-        return response
+        return response.body as BlogViewModel
     }
 }

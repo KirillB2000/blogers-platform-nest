@@ -36,7 +36,7 @@ export class BlogsController {
     async getBlogList(
         @Query() query: GetBlogsQueryParams
     ): Promise<BlogsPaginatedViewDto> {
-        return this.blogsQwRepo.getAll(query)
+        return await this.blogsQwRepo.getAll(query)
     }
 
     @UseGuards(BasicAuthGuard)

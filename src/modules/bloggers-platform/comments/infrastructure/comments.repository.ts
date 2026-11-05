@@ -17,7 +17,7 @@ export class CommentsRepositroy {
     async deleteCommentById (
         commentId: string
     ): Promise<boolean> {
-        const deletionResult = await this.CommentModel.deleteOne({id: commentId})
+        const deletionResult = await this.CommentModel.deleteOne({_id: commentId})
 
         return deletionResult.deletedCount > 0
     }

@@ -12,7 +12,7 @@ describe('UsersController (e2e)', () => {
     let app: INestApplication<App>
     let connection: Connection
     let basicAuthTest: BasicAuthTest
-    
+
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -26,9 +26,10 @@ describe('UsersController (e2e)', () => {
 
         // Подключение к БД
         connection = moduleFixture.get<Connection>(getConnectionToken())
+    })
 
-
-        // Очистка всех коллекций в тестовой БД
+    beforeEach(async () => {
+        // Очистка всех коллекций перед каждым тестом для изоляции
         if (connection.db) {
             const collections = await connection.db.listCollections().toArray()
 
@@ -36,14 +37,14 @@ describe('UsersController (e2e)', () => {
                 await connection.db.collection(collection.name).deleteMany({})
             }
         }
-        
     })
 
     afterAll(async () => {
         await app.close()
+        await connection.close()
     })
 
-    it('/users (POST) should create user with input data', async () => { // Make two users
+    it('/users (POST) should create user with input data', async () => {
         const response = await request(app.getHttpServer())
             .post('/users')
             .set('Authorization', basicAuthTest.generateBasicAuthToken())
@@ -58,16 +59,37 @@ describe('UsersController (e2e)', () => {
             .set('Authorization', basicAuthTest.generateBasicAuthToken())
             .send({
                 login: 'fTestUser2',
-                email: 'firstTU@example.com2',
+                email: 'firstTU@example2.com',
                 password: '123123123'
             })
-            
+
         expect(response.status).toBe(201)
         expect(response.body.login).toBe('fTestUser')
         expect(response.body.email).toBe('firstTU@example.com')
     })
 
     it('/users (GET) should retrieve all users', async () => {
+        // Create two users before getting them
+        const res1 = await request(app.getHttpServer())
+            .post('/users')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
+            .send({
+                login: 'fTestUser',
+                email: 'firstTU@example.com',
+                password: '123123123'
+            })
+        expect(res1.status).toBe(201)
+
+        const res2 = await request(app.getHttpServer())
+            .post('/users')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
+            .send({
+                login: 'fTestUser2',
+                email: 'firstTU@example2.com',
+                password: '123123123'
+            })
+        expect(res2.status).toBe(201)
+
         const response = await request(app.getHttpServer())
             .get('/users?pageNumber=1&pageSize=2')
             .set('Authorization', basicAuthTest.generateBasicAuthToken())
@@ -79,6 +101,27 @@ describe('UsersController (e2e)', () => {
     })
 
     it('/users/:id (DELETE) should delete user by id', async () => {
+        // Create two users before deleting
+        const res1 = await request(app.getHttpServer())
+            .post('/users')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
+            .send({
+                login: 'fTestUser',
+                email: 'firstTU@example.com',
+                password: '123123123'
+            })
+        expect(res1.status).toBe(201)
+
+        const res2 = await request(app.getHttpServer())
+            .post('/users')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
+            .send({
+                login: 'fTestUser2',
+                email: 'firstTU@example2.com',
+                password: '123123123'
+            })
+        expect(res2.status).toBe(201)
+
         const responseBeforeDelete = await request(app.getHttpServer())
             .get('/users?pageNumber=1&pageSize=2')
             .set('Authorization', basicAuthTest.generateBasicAuthToken())

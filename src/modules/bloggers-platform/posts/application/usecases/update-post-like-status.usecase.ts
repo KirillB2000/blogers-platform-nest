@@ -34,7 +34,7 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<UpdatePostLi
     ): Promise<void> {
         const { userId, postId, newStatus } = command
 
-        const user = await this.usersRepository.findById(postId)
+        const user = await this.usersRepository.findById(userId)
 
         if (!user) {
             throw new UnauthorizedException('Unauthorized')

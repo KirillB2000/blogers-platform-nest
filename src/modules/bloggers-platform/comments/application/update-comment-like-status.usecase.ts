@@ -30,16 +30,16 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<UpdateCom
     ): Promise<void> {
         const { userId, commentId, likeStatus: newStatus, } = command
 
-        const comment = await this.commentsRepository.findById(commentId)
-
-        if (!comment) {
-            throw new NotFoundException('Comment not found')
-        }
-
         const user = await this.usersRepository.countUsersById(userId)
 
         if (!user) {
             throw new UnauthorizedException('Unauthorized')
+        }
+
+        const comment = await this.commentsRepository.findById(commentId)
+
+        if (!comment) {
+            throw new NotFoundException('Comment not found')
         }
 
         let likeStatusDocument = await this.commentsLikeStatusRepository.findLikeStatusForSpecificComment(userId, commentId)

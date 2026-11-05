@@ -39,7 +39,8 @@ describe ('Blogs controller (e2e)', () => {
     })
 
     afterAll(async () => {
-        app.close()
+        await app.close()
+        await connection.close()
     })
 
     it('/blogs (POST) should create blog with correct input data', async () => {
@@ -49,6 +50,6 @@ describe ('Blogs controller (e2e)', () => {
             'https://www.someSite.com'
         )
 
-        expect(response.body.name).toBe('blogName')
+        expect(response.name).toBe('blogName')
     })
 })

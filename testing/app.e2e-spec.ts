@@ -4,9 +4,12 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
 import { App } from 'supertest/types.js';
 import { appSetup } from '../src/setup/app.setup.js';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
+  let connection: Connection;
 
   beforeEach(async () => {
     const testingModuleBuilder = Test.createTestingModule({
@@ -20,6 +23,8 @@ describe('AppController (e2e)', () => {
     appSetup(app)
     
     await app.init();
+
+    connection = moduleFixture.get<Connection>(getConnectionToken());
   });
 
   it('/ (GET)', () => {
@@ -31,5 +36,6 @@ describe('AppController (e2e)', () => {
 
   afterEach(async () => {
     await app.close();
+    await connection.close();
   });
 });

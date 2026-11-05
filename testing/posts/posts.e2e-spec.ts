@@ -8,12 +8,17 @@ import { PostTestsHelpers } from "./posts.test-helper.js"
 import { BasicAuthTest } from "../utils/basicAuthTest.js"
 import { BlogTestsHelpers } from "../blogs/blogs.test-helper.js"
 import { LikeStatus } from "../../src/core/types/like-statuses.js"
+import { UserAuthTestHelper } from "../users-auth/user-auth.test-helper.js"
+import { JwtService } from "@nestjs/jwt"
 
 describe ('Posts controller (e2e)', () => {
     let app: INestApplication
     let connection: Connection
+
     let postTestHelper: PostTestsHelpers
     let blogsTestHelper: BlogTestsHelpers
+    let userAuthTestHelper: UserAuthTestHelper
+    let jwtService: JwtService
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -24,8 +29,11 @@ describe ('Posts controller (e2e)', () => {
         appSetup(app)
         await app.init()
 
+        jwtService = app.get<JwtService>(JwtService)
+
         postTestHelper = new PostTestsHelpers(app, new BasicAuthTest())
         blogsTestHelper = new BlogTestsHelpers(app, new BasicAuthTest())
+        userAuthTestHelper = new UserAuthTestHelper(app, new BasicAuthTest())
 
         // Подключение к БД
         connection = moduleFixture.get<Connection>(getConnectionToken())
@@ -57,16 +65,16 @@ describe ('Posts controller (e2e)', () => {
             'testTitle',
             'testShortDescr',
             'testConetent',
-            blog.body.id
+            blog.id
         )
 
-        expect(response.body).toEqual({
+        expect(response).toEqual({
             id: expect.any(String),
             title: "testTitle",
             shortDescription: "testShortDescr",
             content: "testConetent",
-            blogId: blog.body.id,
-            blogName: blog.body.name,
+            blogId: blog.id,
+            blogName: blog.name,
             createdAt: expect.any(String),
             extendedLikesInfo: {
                 likesCount: 0,
@@ -75,5 +83,56 @@ describe ('Posts controller (e2e)', () => {
                 newestLikes: []
             }
         });
+    })
+
+    it ('/posts/${postId}/comments (POST) Should create new comment for specific post', async () => {
+        const user = await userAuthTestHelper.createUserDefault(
+            'tComLogin',
+            '123123123',
+            'tComLogin@example.com'
+        )
+        
+        const blog = await blogsTestHelper.createBlogDefault(
+            'blogName',
+            'some blog descroption',
+            'https://www.someSite.com'
+        )
+
+        const post = await postTestHelper.createPostDefault(
+            'testTitle',
+            'testShortDescr',
+            'testContent',
+            blog.id
+        )
+
+        const token = jwtService.sign(
+            {sub: user.id},
+            {
+                secret: process.env.JWT_ACCESS_SECRET || 'fallback-access-secret',
+                expiresIn: '5m'
+            }
+        )
+
+        const comment = await postTestHelper.createCommentForPostDefault (
+            'testContenttestContenttestContenttestContent',
+            post.id,
+            token
+        )
+
+        expect(comment).toEqual({
+            id: expect.any(String),
+            content: expect.any(String),
+            commentatorInfo: {
+                userId: user.id,
+                userLogin: user.login
+            },
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: comment.likesInfo.likesCount,
+                dislikesCount: comment.likesInfo.dislikesCount,
+                myStatus: comment.likesInfo.myStatus
+            }
+        })
+
     })
 })
