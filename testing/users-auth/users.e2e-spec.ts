@@ -6,10 +6,12 @@ import { AppModule } from "../../src/app.module.js"
 import { getConnectionToken } from "@nestjs/mongoose"
 import request from 'supertest';
 import { appSetup } from "../../src/setup/app.setup.js"
+import { BasicAuthTest } from "../utils/basicAuthTest.js"
 
 describe('UsersController (e2e)', () => {
     let app: INestApplication<App>
     let connection: Connection
+    let basicAuthTest: BasicAuthTest
     
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -19,6 +21,8 @@ describe('UsersController (e2e)', () => {
         app = moduleFixture.createNestApplication()
         appSetup(app)
         await app.init()
+
+        basicAuthTest = new BasicAuthTest()
 
         // Подключение к БД
         connection = moduleFixture.get<Connection>(getConnectionToken())
@@ -42,28 +46,31 @@ describe('UsersController (e2e)', () => {
     it('/users (POST) should create user with input data', async () => { // Make two users
         const response = await request(app.getHttpServer())
             .post('/users')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
             .send({
-                login: 'firstTestUser',
+                login: 'fTestUser',
                 email: 'firstTU@example.com',
                 password: '123123123'
             })
 
         await request(app.getHttpServer())
             .post('/users')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
             .send({
-                login: 'firstTestUser2',
+                login: 'fTestUser2',
                 email: 'firstTU@example.com2',
                 password: '123123123'
             })
             
         expect(response.status).toBe(201)
-        expect(response.body.login).toBe('firstTestUser')
+        expect(response.body.login).toBe('fTestUser')
         expect(response.body.email).toBe('firstTU@example.com')
     })
 
     it('/users (GET) should retrieve all users', async () => {
         const response = await request(app.getHttpServer())
             .get('/users?pageNumber=1&pageSize=2')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
 
         expect(response.body.items.length).toBe(2)
         expect(response.body.totalCount).toBe(2)
@@ -74,6 +81,7 @@ describe('UsersController (e2e)', () => {
     it('/users/:id (DELETE) should delete user by id', async () => {
         const responseBeforeDelete = await request(app.getHttpServer())
             .get('/users?pageNumber=1&pageSize=2')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
 
         expect(responseBeforeDelete.body.items.length).toBe(2)
         expect(responseBeforeDelete.body.totalCount).toBe(2)
@@ -84,13 +92,17 @@ describe('UsersController (e2e)', () => {
 
         await request(app.getHttpServer())
             .delete(`/users/${user1Id}`)
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
             .expect(204)
+
         await request(app.getHttpServer())
             .delete(`/users/${user2Id}`)
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
             .expect(204)
 
         const responseAfterDelete = await request(app.getHttpServer())
             .get('/users?pageNumber=1&pageSize=2')
+            .set('Authorization', basicAuthTest.generateBasicAuthToken())
 
         expect(responseAfterDelete.body.items.length).toBe(0)
         expect(responseAfterDelete.body.totalCount).toBe(0)

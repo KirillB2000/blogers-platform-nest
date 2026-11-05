@@ -4,8 +4,8 @@ import { TestingModule, Test } from "@nestjs/testing"
 import { Connection } from "mongoose"
 import { AppModule } from "../../src/app.module.js"
 import { appSetup } from "../../src/setup/app.setup.js"
-import request from 'supertest'
 import { BlogTestsHelpers } from "./blogs.test-helper.js"
+import { BasicAuthTest } from "../utils/basicAuthTest.js"
 
 
 describe ('Blogs controller (e2e)', () => {
@@ -22,7 +22,7 @@ describe ('Blogs controller (e2e)', () => {
         appSetup(app)
         await app.init()
 
-        blogTestsHelper = new BlogTestsHelpers(app)
+        blogTestsHelper = new BlogTestsHelpers(app, new BasicAuthTest())
 
         // Подключение к БД
         connection = moduleFixture.get<Connection>(getConnectionToken())
@@ -46,7 +46,7 @@ describe ('Blogs controller (e2e)', () => {
         const response = await blogTestsHelper.createBlogDefault(
             'blogName',
             'some blog descroption',
-            'www.someSite.com'
+            'https://www.someSite.com'
         )
 
         expect(response.body.name).toBe('blogName')

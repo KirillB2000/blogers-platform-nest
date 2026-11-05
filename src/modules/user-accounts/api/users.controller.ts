@@ -34,14 +34,14 @@ export class UsersController {
     ): Promise<UserViewDto> {
         const userId = await this.commandBus.execute<CreateUserCommand, string>(new CreateUserCommand(body))
 
-        return this.usersQwRepository.getByIdOrNotFoundFail(userId)
+        return await this.usersQwRepository.getByIdOrNotFoundFail(userId)
     }
 
     @Get()
     async getUserList(
         @Query() query: GetUsersQueryParams
     ): Promise<UsersPaginatedViewDto> {
-        return this.usersQwRepository.getAll(query)
+        return await this.usersQwRepository.getAll(query)
     }
 
     @Delete(':id')

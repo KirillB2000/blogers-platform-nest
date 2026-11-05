@@ -23,7 +23,13 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, Token
         const { userId } = command
 
         const payload = { sub: userId }
-        const accessToken = this.jwtService.sign(payload)
+        const accessToken = this.jwtService.sign(
+            payload,
+            {
+                secret: process.env.JWT_ACCESS_SECRET || 'fallback-access-secret',
+                expiresIn: '5m'
+            }
+        )
 
         const refreshToken = this.jwtService.sign(
             { sub: userId, deviceId: 'fallback-device' }, //TODO: change deiveId later
