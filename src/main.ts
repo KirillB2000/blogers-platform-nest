@@ -12,6 +12,6 @@ async function bootstrap() {
   appSetup(app)
   swaggerSetup(app)
 
-  await app.listen(process.env.PORT ?? PORT);
+  await app.listen(PORT, '0.0.0.0');
 }
 await bootstrap();
