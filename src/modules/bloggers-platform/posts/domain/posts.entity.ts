@@ -85,11 +85,20 @@ export class Post {
     ) {
         if (oldStatus === newStatus) return
 
-        if (oldStatus === LikeStatus.Like) this.extendedLikesInfo.likesCount--
-        if (oldStatus === LikeStatus.Dislike) this.extendedLikesInfo.dislikesCount--
+        let likes = this.extendedLikesInfo.likesCount
+        let dislikes = this.extendedLikesInfo.dislikesCount
 
-        if (newStatus === LikeStatus.Like) this.extendedLikesInfo.likesCount++
-        if (newStatus === LikeStatus.Dislike) this.extendedLikesInfo.dislikesCount++
+        if (oldStatus === LikeStatus.Like) likes--
+        if (oldStatus === LikeStatus.Dislike) dislikes--
+
+        if (newStatus === LikeStatus.Like) likes++
+        if (newStatus === LikeStatus.Dislike) dislikes++
+
+        this.extendedLikesInfo = {
+            ...this.extendedLikesInfo,
+            likesCount: likes,
+            dislikesCount: dislikes
+        }
     }
 }
 

@@ -28,8 +28,8 @@ export class PostViewModel {
         postViewM.blogName = postDoc.blogName
         postViewM.createdAt = postDoc.createdAt
         postViewM.extendedLikesInfo = {
-            dislikesCount: 0,
-            likesCount: 0,
+            dislikesCount: postDoc.extendedLikesInfo.dislikesCount,
+            likesCount: postDoc.extendedLikesInfo.likesCount,
             myStatus: myStatus,
             newestLikes: newestLikes
         }

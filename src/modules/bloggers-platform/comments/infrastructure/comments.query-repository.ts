@@ -66,19 +66,21 @@ export class CommentsQwRepo {
             .exec()
 
         let likesMap: Record<string, LikeStatus> = {}
-        const commentsIds = result.map(comm => comm.id)
+        const commentsIds = result.map(comm => comm._id.toString())
 
         if (userId) {
             const likeStatusesDocuments = await this.LikeStatusCommentModel
                 .find({userId: userId, commentId: {$in: commentsIds}})
 
             likeStatusesDocuments.forEach( doc => {
-                likesMap[doc.commentId] = doc.myStatus
+                likesMap[doc.commentId.toString()] = doc.myStatus
             })
         }
 
         const items = result.map(comment => {
-            const likeStatus = likesMap[comment.id] || LikeStatus.None
+            const commentIdStr = comment._id.toString();
+
+            const likeStatus = likesMap[commentIdStr] || LikeStatus.None
 
             return CommentViewModel.mapToView(comment, likeStatus)
         })

@@ -20,6 +20,7 @@ import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guar
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto.js';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard.js';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -77,6 +78,7 @@ export class BlogsController {
     }
 
     // Posts
+    @UseGuards(JwtOptionalAuthGuard)
     @Get(':blogId/posts')
     async getPostsListForBlogById (
         @Param('blogId') blogId: string,

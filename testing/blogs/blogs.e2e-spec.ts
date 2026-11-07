@@ -1,4 +1,4 @@
-import { INestApplication } from "@nestjs/common"
+import { HttpStatus, INestApplication } from "@nestjs/common"
 import { getConnectionToken } from "@nestjs/mongoose"
 import { TestingModule, Test } from "@nestjs/testing"
 import { Connection } from "mongoose"
@@ -6,6 +6,8 @@ import { AppModule } from "../../src/app.module.js"
 import { appSetup } from "../../src/setup/app.setup.js"
 import { BlogTestsHelpers } from "./blogs.test-helper.js"
 import { BasicAuthTest } from "../utils/basicAuthTest.js"
+import request from 'supertest'
+
 
 
 describe ('Blogs controller (e2e)', () => {
@@ -51,5 +53,11 @@ describe ('Blogs controller (e2e)', () => {
         )
 
         expect(response.name).toBe('blogName')
+    })
+
+    it('/blogs (GET) should get blog list', async () => {
+        await request(app.getHttpServer())
+            .get('/blogs')
+            .expect(HttpStatus.OK)
     })
 })

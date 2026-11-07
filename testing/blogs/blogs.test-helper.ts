@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from "@nestjs/common";
-import request, { Response } from 'supertest'
+import request from 'supertest'
 import { BlogInputModel } from "../../src/modules/bloggers-platform/blogs/api/inputDto/blogs.input-dto.js";
 import { BasicAuthTest } from "../utils/basicAuthTest.js";
 import { BlogViewModel } from "../../src/modules/bloggers-platform/blogs/api/viewDto/blogs.view-dto.js";

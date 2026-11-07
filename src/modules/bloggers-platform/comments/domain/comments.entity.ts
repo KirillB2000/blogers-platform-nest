@@ -52,6 +52,11 @@ export class Comment {
             userLogin: domainDto.userLogin
         }
 
+        comment.likesInfo = {
+            likesCount: 0,
+            dislikesCount: 0
+        }
+
         return comment as CommentDocument
     }
 
@@ -77,11 +82,20 @@ export class Comment {
     async updateLikeCounters(oldStatus: LikeStatus, newStatus: LikeStatus) {
         if (oldStatus === newStatus ) return
 
-        if (oldStatus === LikeStatus.Like) this.likesInfo.likesCount--
-        if (oldStatus === LikeStatus.Dislike) this.likesInfo.dislikesCount--
+        let likes = this.likesInfo.likesCount
+        let dislikes = this.likesInfo.dislikesCount
 
-        if (newStatus === LikeStatus.Like) this.likesInfo.likesCount++
-        if (newStatus === LikeStatus.Dislike) this.likesInfo.dislikesCount++
+        if (oldStatus === LikeStatus.Like) likes--
+        if (oldStatus === LikeStatus.Dislike) dislikes--
+
+        if (newStatus === LikeStatus.Like) likes++
+        if (newStatus === LikeStatus.Dislike) dislikes++
+
+        this.likesInfo = {
+            ...this.likesInfo,
+            likesCount: likes,
+            dislikesCount: dislikes
+        }
     }
 }
 

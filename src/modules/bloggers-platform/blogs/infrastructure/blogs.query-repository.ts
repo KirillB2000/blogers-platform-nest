@@ -38,9 +38,8 @@ export class BlogsQwRepo {
         const filter: any = {}
         const skip = query.calculateSkip()
 
-        if (searchNameTerm) {
-            filter.$or = []
-            filter.$or.push({name: {$regex: searchNameTerm, $options: 'i'}})
+        if (searchNameTerm && searchNameTerm.trim()) {
+            filter.name = { $regex: searchNameTerm.trim(), $options: 'i' }
         }
 
         const result = await this.BlogModel

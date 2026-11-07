@@ -46,27 +46,33 @@ export class PostsQwRepo {
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
             .limit(pageSize)
+            .lean()
             .exec()
 
         const totalCount = await this.PostModel.countDocuments(filter)
 
-        const postIds = result.map(post => post.id)
+        const postIds = result.map(post => post._id.toString())
         const postLikesMap: Record<string, LikeStatus> = {}
 
         if (userId) {
             const likeStatusDocs = await this.LikeStatustPostsModel
-                .find({userId, postId: { $in: postIds}})
+                .find({
+                    userId: userId.toString(), 
+                    postId: { $in: postIds}
+                })
                 .lean() as LikeStatusPosts[]
 
             likeStatusDocs.map(lSDoc => {
-                postLikesMap[lSDoc.postId] = lSDoc.myStatus
+                const key = String(lSDoc.postId)
+                postLikesMap[key] = lSDoc.myStatus
             })
         }
 
         const itemsPromises = result.map(async post => {
-            const myStatus = postLikesMap[post.id] || LikeStatus.None
+            const postIdStr = post._id.toString();
+            const myStatus = postLikesMap[postIdStr] || LikeStatus.None
 
-            const likeInfoDocs = await this.likeStatusPostsRepository.findNewestLikes(post.id)
+            const likeInfoDocs = await this.likeStatusPostsRepository.findNewestLikes(postIdStr)
 
             const newestLikes = likeInfoDocs.map(likeInf => {
                 return {
