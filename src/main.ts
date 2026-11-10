@@ -2,16 +2,19 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { appSetup } from './setup/app.setup.js';
 import { swaggerSetup } from './setup/swagger.setup.js';
-
-export const PORT = process.env.PORT ?? 5005 //TODO: move to configService. will be in the following lessons
-export const GLOBAL_PREFIX = process.env.GLOBAL_PREFIX ?? '/api' //TODO: move to configService. will be in the following lessons
+import { CoreConfig } from './core/core.config.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  appSetup(app)
-  swaggerSetup(app)
+  const coreConfig = app.get<CoreConfig>(CoreConfig)
 
-  await app.listen(PORT);
+  if (coreConfig.isSwaggerEnabled) {
+    swaggerSetup(app)  
+  }
+
+  appSetup(app)
+
+  await app.listen(coreConfig.port);
 }
-await bootstrap();
+await bootstrap(); 

@@ -21,6 +21,8 @@ import { LoginUserUseCase } from './application/usecases/login-user.usecase.js';
 import { PasswordRecoveryUseCase } from './application/usecases/password-recovery.usecase.js';
 import { RegisterUserUseCase } from './application/usecases/register-user.usecase.js';
 import { UpdatePasswordUseCase } from './application/usecases/update-password.usecase.js';
+import { UserConfig } from './config/user.config.js';
+import { AuthConfig } from './config/auth.config.js';
 
 const userAuthUseCases = [
   CreateUserUseCase,
@@ -40,9 +42,14 @@ const userAuthQueries = [
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    JwtModule.register({
-      secret: process.env.JWT_ACCESS_SECRET,
-      signOptions: {expiresIn: '5m'}
+    JwtModule.registerAsync({
+      useFactory: (authConfig: AuthConfig) => {
+        return {
+          secret: authConfig.jwtAccessSecret,
+          signOptions: { expiresIn: '5m' }
+        }
+      },
+      inject: [AuthConfig]
     }),
     NotificationModule
   ],
@@ -55,6 +62,8 @@ const userAuthQueries = [
     JwtStrategy,
     EmailExamples,
     PasswordService,
+
+    UserConfig,
 
     ...userAuthUseCases,
     ...userAuthQueries

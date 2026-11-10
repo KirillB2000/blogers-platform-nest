@@ -1,6 +1,5 @@
 import { INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { GLOBAL_PREFIX } from "../main.js";
 
 
 export function swaggerSetup(app: INestApplication) {
@@ -11,7 +10,7 @@ export function swaggerSetup(app: INestApplication) {
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(GLOBAL_PREFIX, app, document, {
+    SwaggerModule.setup('/api', app, document, { // Move global prefix to core config if nedeed
         customSiteTitle: 'Blogger Swagger',
     });
 }

@@ -11,22 +11,36 @@ import { UserAccountsModule } from './modules/user-accounts/user-accounts.module
 import { NotificationModule } from './modules/notification/notification.module.js';
 import { seconds, ThrottlerModule } from '@nestjs/throttler'
 import { CqrsModule } from '@nestjs/cqrs';
+import { CoreConfig } from './core/core.config.js';
+
+const testingModule = []
+
+if (process.env.NODE_ENV === 'testing') {
+  testingModule.push(TestingModule)
+}
 
 @Module({
   imports: [
+    CoreModule,
     configModule,
-    MongooseModule.forRoot(process.env.MONGODB_URI || "mongodb://test:test@ac-ojrvsaj-shard-00-00.7rebcxk.mongodb.net:27017,ac-ojrvsaj-shard-00-01.7rebcxk.mongodb.net:27017,ac-ojrvsaj-shard-00-02.7rebcxk.mongodb.net:27017/myapp_dev?ssl=true&replicaSet=atlas-zhxj62-shard-0&authSource=admin&appName=Cluster0"),
+    MongooseModule.forRootAsync({
+      useFactory: (coreConfig: CoreConfig) => {
+        return {
+          uri: coreConfig.mongoURI
+        }
+      },
+      inject: [CoreConfig]
+    }),
     ThrottlerModule.forRoot([{ ttl: seconds(10), limit: 5  }]),
     CqrsModule.forRoot(),
     UserAccountsModule,
-    CoreModule,
     CommentsModule,
     PostsModule,
     BlogsModule,
-    TestingModule,
     NotificationModule,
+
+    ...testingModule
   ],
-  providers: [],
   controllers: [AppController],
 })
 export class AppModule {}

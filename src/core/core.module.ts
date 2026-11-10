@@ -1,4 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { CoreConfig } from './core.config.js';
+import { AuthConfig } from '../modules/user-accounts/config/auth.config.js';
 
-@Module({})
+@Global()
+@Module({
+    providers: [CoreConfig, AuthConfig],
+    exports: [CoreConfig, AuthConfig]
+})
+
 export class CoreModule {}

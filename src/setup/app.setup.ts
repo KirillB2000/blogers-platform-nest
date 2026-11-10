@@ -33,5 +33,4 @@ export function appSetup(app: INestApplication) {
 
     app.enableCors()
     app.use(cookieParser())
-    //app.setGlobalPrefix('api')
 }

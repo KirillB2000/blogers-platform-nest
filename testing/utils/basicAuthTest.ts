@@ -1,11 +1,13 @@
-export class BasicAuthTest {
-    private ADMIN_USERNAME = process.env.ADMIN_USERNAME
-    private ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
+import { CoreConfig } from "../../src/core/core.config.js";
 
-    constructor () {}
+export class BasicAuthTest {
+
+    constructor (
+        private coreConfig: CoreConfig
+    ) {}
 
     generateBasicAuthToken () {
-        const credentials = `${this.ADMIN_USERNAME}:${this.ADMIN_PASSWORD}`;
+        const credentials = `${this.coreConfig.adminUsername}:${this.coreConfig.adminPassword}`;
 
         const token = Buffer.from(credentials).toString("base64");
 

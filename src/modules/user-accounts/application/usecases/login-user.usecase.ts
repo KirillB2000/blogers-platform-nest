@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "@nestjs/jwt";
 import { TokensCredsAppDto as TokensCredsAppDto } from "../dto/tokens-creds.app.dto.js";
+import { AuthConfig } from "../../config/auth.config.js";
 
 export class LoginUserCommand {
     constructor (
@@ -12,7 +13,8 @@ export class LoginUserCommand {
 export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, TokensCredsAppDto>{
     
     constructor (
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private authConfig: AuthConfig
     ) {
 
     }
@@ -26,7 +28,7 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, Token
         const accessToken = this.jwtService.sign(
             payload,
             {
-                secret: process.env.JWT_ACCESS_SECRET || 'fallback-access-secret',
+                secret: this.authConfig.jwtAccessSecret,
                 expiresIn: '5m'
             }
         )
@@ -34,7 +36,7 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, Token
         const refreshToken = this.jwtService.sign(
             { sub: userId, deviceId: 'fallback-device' }, //TODO: change deiveId later
             {
-                secret: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+                secret: this.authConfig.jwtRefreshSecret,
                 expiresIn: '20d'
             }
         )

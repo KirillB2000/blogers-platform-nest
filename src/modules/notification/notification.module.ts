@@ -1,26 +1,33 @@
 import { Module } from '@nestjs/common';
 import { EmailService } from './email.service.js';
 import { MailerModule } from '@nestjs-modules/mailer'
-import { SETTINGS } from '../../settings.js';
 import { EmailExamples } from './email.examples.js';
+import { NotificationConfig } from './config/notification.config.js';
 
 @Module({
   imports: [
-    MailerModule.forRoot({
-      transport: {
-        service: 'gmail',
-        auth: {
-          user: SETTINGS.EMAIL,
-          pass: SETTINGS.EMAIL_PASSWORD,
+    MailerModule.forRootAsync({
+      imports: [NotificationModule],
+      useFactory: (notificationConfig: NotificationConfig) => {
+        return {
+          transport: {
+            service: 'gmail',
+            auth: {
+              user: notificationConfig.notificationEmail,
+              pass: notificationConfig.notificationEmailPassword,
+            }
+          },
+
+          defaults: {
+            from: '"nest-modules" <modules@nestjs.com>'
+          }
         }
       },
 
-      defaults: {
-        from: '"nest-modules" <modules@nestjs.com>'
-      }
+      inject: [NotificationConfig]
     })
   ],
-  providers: [EmailService, EmailExamples],
-  exports: [EmailService]
+  providers: [EmailService, EmailExamples, NotificationConfig],
+  exports: [EmailService, NotificationConfig]
 })
 export class NotificationModule {}

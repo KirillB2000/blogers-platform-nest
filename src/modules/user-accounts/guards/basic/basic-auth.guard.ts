@@ -1,11 +1,16 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
+import { CoreConfig } from '../../../../core/core.config.js';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
-    private readonly adminUsername = process.env.ADMIN_USERNAME;
-    private readonly adminPassword = process.env.ADMIN_PASSWORD;
+
+    constructor (
+        private coreConfig: CoreConfig
+    ) {
+
+    }
     
     canActivate(
         context: ExecutionContext,
@@ -32,7 +37,7 @@ export class BasicAuthGuard implements CanActivate {
             const credentials = Buffer.from(token, 'base64').toString('utf-8')
             const [username, password] = credentials.split(':')
             
-            if (username !== this.adminUsername && password !== this.adminPassword) {
+            if (username !== this.coreConfig.adminUsername && password !== this.coreConfig.adminPassword) {
                 throw new UnauthorizedException('Unauthorized')
             }
     
