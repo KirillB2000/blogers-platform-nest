@@ -33,4 +33,10 @@ export function appSetup(app: INestApplication) {
 
     app.enableCors()
     app.use(cookieParser())
+
+    const expressApp = app.getHttpAdapter().getInstance()
+    
+    if (expressApp && typeof expressApp.set === 'function') {
+        expressApp.set('trust proxy', true)
+    }
 }

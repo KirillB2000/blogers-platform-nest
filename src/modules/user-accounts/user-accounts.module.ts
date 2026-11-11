@@ -23,6 +23,9 @@ import { RegisterUserUseCase } from './application/usecases/register-user.usecas
 import { UpdatePasswordUseCase } from './application/usecases/update-password.usecase.js';
 import { UserConfig } from './config/user.config.js';
 import { AuthConfig } from './config/auth.config.js';
+import { SecurityDevicesRepository } from './infrastructure/sercurity-devices.repository.js';
+import { SecurityDevices, SecurityDevicesSchema } from './domain/security-devices.entity.js';
+import { JwtRefreshStrategy } from './guards/refresh/jwt-refresh.strategy.js';
 
 const userAuthUseCases = [
   CreateUserUseCase,
@@ -41,7 +44,11 @@ const userAuthQueries = [
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      {name: SecurityDevices.name, schema: SecurityDevicesSchema}
+    ]),
+
     JwtModule.registerAsync({
       useFactory: (authConfig: AuthConfig) => {
         return {
@@ -60,8 +67,10 @@ const userAuthQueries = [
     AuthQueryRepository,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshStrategy,
     EmailExamples,
     PasswordService,
+    SecurityDevicesRepository,
 
     UserConfig,
 

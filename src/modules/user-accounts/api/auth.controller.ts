@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { UserInputModel } from './inputDto/uesrs.input-dto.js';
 import { RegistrationConfirmationCodeModel } from './inputDto/register-confirm-code.input-dto.js';
 import { RegistrationEmailResending } from './inputDto/register-email-resending.input-dto.js';
@@ -21,6 +21,13 @@ import { PasswordRecoveryCommand } from '../application/usecases/password-recove
 import { UpdatePasswordCommand } from '../application/usecases/update-password.usecase.js';
 import { type Response } from 'express';
 import { TokensCredsAppDto } from '../application/dto/tokens-creds.app.dto.js';
+import { ExtractIpFromReq } from '../guards/decorators/param/extract-ip-from-request.js';
+import { ExtractDeviceNameFromReq } from '../guards/decorators/param/extract-device-name-from-request.js';
+import { ExtractResfreshTokenFromReq } from '../guards/decorators/param/extract-refresh-token-from-request.js';
+import { AuthCookies } from './inputDto/auth-cookies.js';
+import { JwtRefreshAuthGuard } from '../guards/refresh/jwt-refresh.guard.js';
+import { RefreshUserContextDto } from '../guards/dto/refresh-user-context.dto.js';
+import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase.js';
 
 @Controller('auth')
 export class AuthController {
@@ -31,12 +38,16 @@ export class AuthController {
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
-    @UseGuards(LocalAuthGuard)
+    @UseGuards(LocalAuthGuard, ThrottlerGuard)
     async login(
         @ExtractUserFromRequest() user: UserContextDto,
-        @Res({passthrough: true}) res: Response
+        @ExtractIpFromReq() ipAddress: string,
+        @ExtractDeviceNameFromReq() deviceName: string,
+        @Res({passthrough: true}) res: Response,
     ): Promise<LoginSuccessViewModel> {
-        const { accessToken, refreshToken } = await this.commandBus.execute<LoginUserCommand, TokensCredsAppDto>(new LoginUserCommand(user.id))
+
+        const { accessToken, refreshToken } = await this.commandBus
+            .execute<LoginUserCommand, TokensCredsAppDto>(new LoginUserCommand(user.id, ipAddress, deviceName))
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -94,6 +105,24 @@ export class AuthController {
         @Body() body: NewPasswordRecoveryInputModel
     ): Promise<void> {
         return await this.commandBus.execute<UpdatePasswordCommand, void>(new UpdatePasswordCommand({...body}))
+    }
+
+    @UseGuards(JwtRefreshAuthGuard)
+    @Post('refresh-token')
+    @HttpCode(HttpStatus.OK)
+    async refreshToken (
+        @ExtractUserFromRequest() user: RefreshUserContextDto,
+        @Res({passthrough: true}) res: Response,
+    ): Promise<LoginSuccessViewModel> {
+        const { accessToken, refreshToken } = await this.commandBus.execute<RefreshTokenCommand, TokensCredsAppDto>(new RefreshTokenCommand(user.userId, user.deviceId, user.iat))
+        
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict'
+        })
+
+        return { accessToken }
     }
 
     @Get('me')
