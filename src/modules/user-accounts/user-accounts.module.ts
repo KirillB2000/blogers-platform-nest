@@ -11,9 +11,7 @@ import { LocalStrategy } from './guards/local/local.strategy.js';
 import { EmailExamples } from '../notification/email.examples.js';
 import { JwtStrategy } from './guards/bearer/jwt.strategy.js';
 import { AuthQueryRepository } from './infrastructure/auth.query-repository.js';
-import { CreateUserUseCase } from './application/usecases/create-user.usecase.js';
 import { PasswordService } from './application/adapters/password.service.js';
-import { DeleteUserUseCase } from './application/usecases/delete-user.usecase.js';
 import { ValidateUserHanlder } from './application/queries/validate-user.query.js';
 import { EmailConfirmationUseCase } from './application/usecases/email-conifrmation.usecase.js';
 import { EmailResendingUseCase } from './application/usecases/email-resending.usecase.js';
@@ -26,6 +24,14 @@ import { AuthConfig } from './config/auth.config.js';
 import { SecurityDevicesRepository } from './infrastructure/sercurity-devices.repository.js';
 import { SecurityDevices, SecurityDevicesSchema } from './domain/security-devices.entity.js';
 import { JwtRefreshStrategy } from './guards/refresh/jwt-refresh.strategy.js';
+import { DeleteUserUseCase } from './application/usecases/user/delete-user.usecase.js';
+import { CreateUserUseCase } from './application/usecases/user/create-user.usecase.js';
+import { LogoutUseCase } from './application/usecases/logout.usecase.js';
+import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecase.js';
+import { SecurityDevicesController } from './api/security-devices.controller.js';
+import { SecurityDevicesQueryRepository } from './infrastructure/sercurity-devices.query-repository.js';
+import { DeleteSpecificSessionUseCase } from './application/usecases/securityDevices/delete-specific-session.usercase.js';
+import { DeleteAllExceptActiveUseCase } from './application/usecases/securityDevices/delete-all-except-active.usecase.js';
 
 const userAuthUseCases = [
   CreateUserUseCase,
@@ -35,7 +41,11 @@ const userAuthUseCases = [
   LoginUserUseCase,
   PasswordRecoveryUseCase,
   RegisterUserUseCase,
-  UpdatePasswordUseCase
+  UpdatePasswordUseCase,
+  LogoutUseCase,
+  RefreshTokenUseCase,
+  DeleteSpecificSessionUseCase,
+  DeleteAllExceptActiveUseCase
 ]
 
 const userAuthQueries = [
@@ -60,7 +70,7 @@ const userAuthQueries = [
     }),
     NotificationModule
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
     UsersRepository, 
     UsersQwRepo,
@@ -71,6 +81,7 @@ const userAuthQueries = [
     EmailExamples,
     PasswordService,
     SecurityDevicesRepository,
+    SecurityDevicesQueryRepository,
 
     UserConfig,
 

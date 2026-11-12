@@ -16,9 +16,9 @@ import { UsersQwRepo } from '../infrastructure/users.query-repository.js';
 import { GetUsersQueryParams } from './inputDto/get-users-query-params.input-dto.js';
 import { UsersPaginatedViewDto } from './viewDto/users.paginated.view-dto.js';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard.js';
-import { CreateUserCommand } from '../application/usecases/create-user.usecase.js';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeleteUserCommand } from '../application/usecases/delete-user.usecase.js';
+import { CreateUserCommand } from '../application/usecases/user/create-user.usecase.js';
+import { DeleteUserCommand } from '../application/usecases/user/delete-user.usecase.js';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')

@@ -22,6 +22,7 @@ import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-o
 import { LikeInputModel } from '../../../../core/dto/like-status.input-dto.js';
 import { UpdatePostLikeStatusCommand } from '../application/usecases/update-post-like-status.usecase.js';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard.js';
+import { ExtractOptionalUser } from '../../../user-accounts/guards/decorators/param/extract-user-from-request-optional.js';
 
 @Controller('posts')
 export class PostsController {
@@ -50,7 +51,7 @@ export class PostsController {
     @Get()
     async getPostsList(
         @Query() query: GetPostsQueryParams,
-        @ExtractUserFromRequest() user?: UserContextDto
+        @ExtractOptionalUser() user?: UserContextDto
     ): Promise<PostPagindatedViewDto> {
         const userId = user ? user.id : null
 
@@ -61,7 +62,7 @@ export class PostsController {
     @Get(':id')
     async getPostById (
         @Param('id') id: string,
-        @ExtractUserFromRequest() user?: UserContextDto
+        @ExtractOptionalUser() user?: UserContextDto
     ): Promise<PostViewModel> {
         const userId = user ? user.id : null
         return await this.postsQwRepo.getByIdOrFail(id, userId)
@@ -92,7 +93,7 @@ export class PostsController {
     async getCommentsListForPostById(
         @Param('postId') postId: string,
         @Query() query: GetCommentQueryParams,
-        @ExtractUserFromRequest() user?: UserContextDto
+        @ExtractOptionalUser() user?: UserContextDto
     ): Promise<CommentsPaginatedViewDto> {
 
         const userId = user ? user.id : null

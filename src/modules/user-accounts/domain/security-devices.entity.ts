@@ -78,8 +78,8 @@ export const SecurityDevicesSchema = SchemaFactory.createForClass(SecurityDevice
 SecurityDevicesSchema.loadClass(SecurityDevices)
 
 SecurityDevicesSchema.index({ userId: 1, deviceId: 1, lastActiveDate: 1 })
-
-SecurityDevicesSchema.index({deviceId: 1}, {unique: true})
+SecurityDevicesSchema.index({ expirationDate: 1 }, { expireAfterSeconds: 0 })
+SecurityDevicesSchema.index({deviceId: 1}, {unique: true}) // Check if tests crashed
 
 export type SecurityDevicesDocument = HydratedDocument<SecurityDevices>
 export type SercurityDevicesModelType = Model<SecurityDevicesDocument> & typeof SecurityDevices

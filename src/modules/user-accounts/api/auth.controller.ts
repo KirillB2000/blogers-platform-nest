@@ -23,11 +23,10 @@ import { type Response } from 'express';
 import { TokensCredsAppDto } from '../application/dto/tokens-creds.app.dto.js';
 import { ExtractIpFromReq } from '../guards/decorators/param/extract-ip-from-request.js';
 import { ExtractDeviceNameFromReq } from '../guards/decorators/param/extract-device-name-from-request.js';
-import { ExtractResfreshTokenFromReq } from '../guards/decorators/param/extract-refresh-token-from-request.js';
-import { AuthCookies } from './inputDto/auth-cookies.js';
 import { JwtRefreshAuthGuard } from '../guards/refresh/jwt-refresh.guard.js';
 import { RefreshUserContextDto } from '../guards/dto/refresh-user-context.dto.js';
 import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase.js';
+import { LogoutCommand } from '../application/usecases/logout.usecase.js';
 
 @Controller('auth')
 export class AuthController {
@@ -52,7 +51,6 @@ export class AuthController {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict'
         })
 
         return { accessToken }
@@ -114,15 +112,31 @@ export class AuthController {
         @ExtractUserFromRequest() user: RefreshUserContextDto,
         @Res({passthrough: true}) res: Response,
     ): Promise<LoginSuccessViewModel> {
-        const { accessToken, refreshToken } = await this.commandBus.execute<RefreshTokenCommand, TokensCredsAppDto>(new RefreshTokenCommand(user.userId, user.deviceId, user.iat))
+        const { accessToken, refreshToken } = await this.commandBus
+            .execute<RefreshTokenCommand, TokensCredsAppDto>(new RefreshTokenCommand(user.userId, user.deviceId, user.iat))
         
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict'
         })
 
         return { accessToken }
+    }
+    
+    @UseGuards(JwtRefreshAuthGuard)
+    @Post('logout')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async logout(
+        @ExtractUserFromRequest() user: RefreshUserContextDto,
+        @Res({passthrough: true}) res: Response
+    ): Promise<void> {
+
+        await this.commandBus.execute<LogoutCommand, void>(new LogoutCommand(user.userId, user.deviceId, user.iat))
+        
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true,
+        })
     }
 
     @Get('me')

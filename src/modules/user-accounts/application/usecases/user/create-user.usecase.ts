@@ -1,9 +1,9 @@
-import { InjectModel } from "@nestjs/mongoose";
-import { User, type UserModelType } from "../../domain/user.entity.js";
-import { UsersRepository } from "../../infrastructure/users.repository.js";
-import { PasswordService } from "../adapters/password.service.js";
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateUserAppDto } from "../dto/create-user.app-dto.js";
+import { InjectModel } from "@nestjs/mongoose";
+import { User, type UserModelType } from "../../../domain/user.entity.js";
+import { UsersRepository } from "../../../infrastructure/users.repository.js";
+import { PasswordService } from "../../adapters/password.service.js";
+import { CreateUserAppDto } from "../../dto/create-user.app-dto.js";
 
 export class CreateUserCommand { // Command with all essential date for execute the command
     constructor(

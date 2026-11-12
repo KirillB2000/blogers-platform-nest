@@ -16,11 +16,10 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.j
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase.js';
-import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard.js';
-import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.js';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto.js';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard.js';
 import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
+import { ExtractOptionalUser } from '../../../user-accounts/guards/decorators/param/extract-user-from-request-optional.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -83,7 +82,7 @@ export class BlogsController {
     async getPostsListForBlogById (
         @Param('blogId') blogId: string,
         @Query() query: GetPostsQueryParams,
-        @ExtractUserFromRequest() user?: UserContextDto
+        @ExtractOptionalUser() user?: UserContextDto
     ): Promise<PostPagindatedViewDto> {
         const userId = user ? user.id : null
         await this.blogsRepository.findByIdOrFail(blogId)

@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
+    import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { BadRequestException } from "@nestjs/common";
 

@@ -20,7 +20,6 @@ export class RefreshTokenCommand {
 export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand, TokensCredsAppDto> {
     constructor (
         private jwtService: JwtService,
-        private usersRepository: UsersRepository,
         private authConfig: AuthConfig,
         private securityDevicesRepository: SecurityDevicesRepository
     ) {}
@@ -32,12 +31,6 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand,
         const { deviceId, iat, userId } = command
 
         const issuedAtOld = iat * 1000
-
-        const userById = await this.usersRepository.findById(userId)
-
-        if (!userById) {
-            throw new UnauthorizedException('Unauthorized')
-        }
 
         const authSessionDoc = await this.securityDevicesRepository.findSession(issuedAtOld, deviceId, userId)
 

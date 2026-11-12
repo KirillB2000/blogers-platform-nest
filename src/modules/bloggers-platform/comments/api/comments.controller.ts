@@ -11,6 +11,7 @@ import { UpdateCommentCommand } from '../application/update-comment.usecase.js';
 import { LikeInputModel } from '../../../../core/dto/like-status.input-dto.js';
 import { UpdateCommentLikeStatusCommand } from '../application/update-comment-like-status.usecase.js';
 import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard.js';
+import { ExtractOptionalUser } from '../../../user-accounts/guards/decorators/param/extract-user-from-request-optional.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -24,7 +25,7 @@ export class CommentsController {
     @Get(':id')
     async getCommentById(
         @Param('id') id: string,
-        @ExtractUserFromRequest() user?: UserContextDto
+        @ExtractOptionalUser() user?: UserContextDto
     ): Promise<CommentViewModel> {
         const userId = user ? user.id : null
         return this.commentsQwRepo.getCommentByIdOrFail(id, userId)
