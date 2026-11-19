@@ -37,7 +37,7 @@ export class AuthController {
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
-    @UseGuards(LocalAuthGuard, ThrottlerGuard)
+    @UseGuards(ThrottlerGuard, LocalAuthGuard)
     async login(
         @ExtractUserFromRequest() user: UserContextDto,
         @ExtractIpFromReq() ipAddress: string,
@@ -130,13 +130,14 @@ export class AuthController {
         @ExtractUserFromRequest() user: RefreshUserContextDto,
         @Res({passthrough: true}) res: Response
     ): Promise<void> {
-
         await this.commandBus.execute<LogoutCommand, void>(new LogoutCommand(user.userId, user.deviceId, user.iat))
         
         res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: true,
         })
+
+        return;
     }
 
     @Get('me')

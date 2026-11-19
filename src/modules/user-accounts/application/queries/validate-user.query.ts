@@ -16,14 +16,13 @@ export class ValidateUserHanlder implements IQueryHandler<ValidateUserQuery, Use
     constructor(
         private usersRepository: UsersRepository,
         private passwordSerivce: PasswordService
-    ) { }
+    ) {}
     
     async execute(
         query: ValidateUserQuery
     ): Promise<UserDocument | null> {
         const loginOrEmail = query.loginOrEmail
         const password = query.password
-
         const user = await this.usersRepository.findByLoginOrEmailField(loginOrEmail)
         if (!user) return null
 

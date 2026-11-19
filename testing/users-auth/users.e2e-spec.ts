@@ -7,6 +7,7 @@ import { getConnectionToken } from "@nestjs/mongoose"
 import request from 'supertest';
 import { appSetup } from "../../src/setup/app.setup.js"
 import { BasicAuthTest } from "../utils/basicAuthTest.js"
+import { CoreConfig } from "../../src/core/core.config.js"
 
 describe('UsersController (e2e)', () => {
     let app: INestApplication<App>
@@ -22,7 +23,9 @@ describe('UsersController (e2e)', () => {
         appSetup(app)
         await app.init()
 
-        basicAuthTest = new BasicAuthTest()
+        const coreModule = app.get<CoreConfig>(CoreConfig)
+
+        basicAuthTest = new BasicAuthTest(coreModule)
 
         // Подключение к БД
         connection = moduleFixture.get<Connection>(getConnectionToken())

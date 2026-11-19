@@ -14,6 +14,7 @@
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/main",
+    "start:test": "cross-env NODE_ENV=testing nest start --watch",
     "lint": "oxlint src/ test/ --fix",
     "test": "cross-env NODE_ENV=testing vitest run",
     "test:watch": "cross-env NODE_ENV=testing vitest",

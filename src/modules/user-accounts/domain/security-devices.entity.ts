@@ -32,7 +32,6 @@ export class SecurityDevices {
     @Prop({
         required: true,
         type: String,
-        maxLength: 100
     })
     title: string // deviceName (need to parsing http header "user-agent")
     
