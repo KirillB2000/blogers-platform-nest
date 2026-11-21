@@ -3,7 +3,7 @@ import { NotFoundException } from "@nestjs/common";
 import { UsersRepository } from "../../../infrastructure/users.repository.js";
 
 export class DeleteUserCommand {
-    constructor ( public id: string ) {}
+    constructor ( public id: number ) {}
 }
 
 @CommandHandler(DeleteUserCommand)
@@ -16,7 +16,6 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand, voi
         command: DeleteUserCommand
     ): Promise<void> {
         const { id } = command
-        await this.usersRepository.findOrNotFoundFail(id);
 
         const isDeleted = await this.usersRepository.deleteById(id)
 
@@ -24,5 +23,4 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand, voi
             throw new NotFoundException('User not found')
         }
     }
-
 }

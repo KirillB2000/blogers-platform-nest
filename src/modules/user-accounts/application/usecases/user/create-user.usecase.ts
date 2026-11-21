@@ -12,7 +12,7 @@ export class CreateUserCommand { // Command with all essential date for execute 
 }
 
 @CommandHandler(CreateUserCommand) // indicate that CreateUserUseCase class is CreateUserCommand handler
-export class CreateUserUseCase implements ICommandHandler<CreateUserCommand, string> { // interface ICommandHandler used for strict typing (CreateUserCommand when enter execute() method and string on the exit)
+export class CreateUserUseCase implements ICommandHandler<CreateUserCommand, number> { // interface ICommandHandler used for strict typing (CreateUserCommand when enter execute() method and string on the exit)
     constructor (
         @InjectModel(User.name)
         private UserModel: UserModelType,
@@ -22,20 +22,14 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand, str
 
     async execute(
         command: CreateUserCommand
-    ): Promise<string> {
+    ): Promise<number> {
 
         const { dto } = command
 
         const passwordHash = await this.passwordService.hashPassword(dto.password)
 
-        const user = this.UserModel.createInstance({
-            email: dto.email,
-            login: dto.login,
-            passwordHash: passwordHash,
-        })
+        const userId = await this.usersRepository.createUser(dto.login, dto.email, passwordHash)
 
-        await this.usersRepository.save(user)
-
-        return user.id
+        return userId
     }
 }

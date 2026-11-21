@@ -6,6 +6,7 @@ import {
     HttpCode, 
     HttpStatus, 
     Param, 
+    ParseIntPipe, 
     Post, 
     Query, 
     UseGuards
@@ -32,7 +33,7 @@ export class UsersController {
     async createUser(
         @Body() body: UserInputModel
     ): Promise<UserViewDto> {
-        const userId = await this.commandBus.execute<CreateUserCommand, string>(new CreateUserCommand(body))
+        const userId = await this.commandBus.execute<CreateUserCommand, number>(new CreateUserCommand(body))
 
         return await this.usersQwRepository.getByIdOrNotFoundFail(userId)
     }
@@ -47,7 +48,7 @@ export class UsersController {
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteUser(
-        @Param('id') id: string
+        @Param('id', ParseIntPipe) id: number
     ): Promise<void> {
         return await this.commandBus.execute<DeleteUserCommand, void>(new DeleteUserCommand(id))
     }

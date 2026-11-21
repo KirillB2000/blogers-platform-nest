@@ -1,21 +1,60 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User, UserDocument, type UserModelType } from "../domain/user.entity.js";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class UsersRepository {
-    constructor(@InjectModel(User.name) private UserModel: UserModelType) {}
+    constructor(
+        @InjectModel(User.name) private UserModel: UserModelType,
+        @InjectDataSource() private dataSource: DataSource
+    ) {}
     
     async save(user: UserDocument) {
         await user.save();
     }
 
-    async deleteById(
-        id: string
-    ): Promise<boolean> {
-        const deletionResult = await this.UserModel.deleteOne({ _id: id })
+    async createUser (
+        login: string, 
+        email: string, 
+        passwordHash: string
+    ): Promise<number> {
+        const createdUserRow = await this.dataSource.query(
+            `
+            INSERT INTO users (
+                login,
+                email,
+                password_hash
+            )
+            VALUES ($1, $2, $3)
+            RETURNING *;
+            
+            `,
+            [login, email, passwordHash]
+        )
 
-        return deletionResult.deletedCount > 0
+        const userId = createdUserRow[0].id as number
+
+        return userId
+    }
+
+    async deleteById(
+        id: number
+    ): Promise<boolean> {
+        const [deletedRows] = await this.dataSource.query( // deletedRows - это первое из двух значений, которые лежат в массиве, который возвращаемя из query при удалении ([{rows}, affectedCount])
+            `
+                DELETE FROM users
+                WHERE "id"=$1
+                RETURNING id
+
+            `,
+            [id]
+        )
+
+        console.log(deletedRows) 
+
+        return deletedRows.length > 0
     }
 
     async findById (
@@ -26,7 +65,9 @@ export class UsersRepository {
         return userDoc
     }
 
-    async findOrNotFoundFail(
+
+
+    async findOrNotFoundFail( // Unite into the one method 
         id: string
     ): Promise<UserDocument> {
         const userDoc = await this.UserModel.findById(id)
