@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{BASE_URL}}/auth/registration-confirmation"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"code\": \"72560557-629c-4903-a2cf-86cd668f56f6\"\r
+
+    }"
+order: 2000

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './api/users.controller.js';
+import { UsersController } from './api/sa-users.controller.js';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './domain/user.entity.js';
 import { UsersRepository } from './infrastructure/users.repository.js';

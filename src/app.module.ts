@@ -12,6 +12,7 @@ import { NotificationModule } from './modules/notification/notification.module.j
 import { seconds, ThrottlerModule } from '@nestjs/throttler'
 import { CqrsModule } from '@nestjs/cqrs';
 import { CoreConfig } from './core/core.config.js';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 const testingModule = []
 
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === 'testing') {
   imports: [
     CoreModule,
     configModule,
+
     MongooseModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => {
         return {
@@ -31,6 +33,18 @@ if (process.env.NODE_ENV === 'testing') {
       },
       inject: [CoreConfig]
     }),
+
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'nodejs',
+      password: 'nodejs',
+      database: 'blogers-platform',
+      entities: [],
+      synchronize: false,
+    }),
+
     ThrottlerModule.forRoot([{ ttl: seconds(10), limit: 5  }]),
     CqrsModule.forRoot(),
     UserAccountsModule,

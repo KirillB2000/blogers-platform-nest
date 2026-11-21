@@ -1,0 +1,5 @@
+workspace:
+  id: f8089678-eda5-40fe-881b-d2f3513a9c9c
+cloudResources:
+  collections:
+    ../postman/collections/blogers-platform: 48486044-c68e4165-19ed-4353-9df9-548316a1f557

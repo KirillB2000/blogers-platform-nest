@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { UserInputModel } from './inputDto/uesrs.input-dto.js';
 import { RegistrationConfirmationCodeModel } from './inputDto/register-confirm-code.input-dto.js';
 import { RegistrationEmailResending } from './inputDto/register-email-resending.input-dto.js';
@@ -34,6 +34,18 @@ export class AuthController {
         private authQwRepo: AuthQueryRepository,
         private commandBus: CommandBus
     ) {}
+
+    @Get('test')
+    async test() {
+        return await this.authQwRepo.getAllTest()
+    }
+
+    @Get('test/:id')
+    async testOne(
+        @Param('id') id: number
+    ) {
+        return await this.authQwRepo.getOneTest(id)
+    }
 
     @Post('login')
     @HttpCode(HttpStatus.OK)

@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{BASE_URL}}/testing/all-data"
+method: DELETE
+order: 3000
