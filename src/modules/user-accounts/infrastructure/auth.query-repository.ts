@@ -21,27 +21,4 @@ export class AuthQueryRepository {
 
         return MeViewDto.mapToView(userDbRow)
     }
-
-    async getAllTest () {
-        return await this.dataSource.query(
-            `SELECT * FROM "testTable"`
-        )
-    }
-
-    async getOneTest (
-        id: number
-    ) {
-        const result = await this.dataSource.query(
-            `SELECT * FROM "testTable" WHERE id=$1`,
-            [id]
-        )
-
-        return result.map((u: any) => {
-            return {
-            id: u.id,
-            name: u.name,
-            isSo: u.isSo
-            }
-        })[0]
-    }
 }

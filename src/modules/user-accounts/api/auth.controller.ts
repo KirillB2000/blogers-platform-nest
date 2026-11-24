@@ -35,18 +35,6 @@ export class AuthController {
         private commandBus: CommandBus
     ) {}
 
-    @Get('test')
-    async test() {
-        return await this.authQwRepo.getAllTest()
-    }
-
-    @Get('test/:id')
-    async testOne(
-        @Param('id') id: number
-    ) {
-        return await this.authQwRepo.getOneTest(id)
-    }
-
     @Post('login')
     @HttpCode(HttpStatus.OK)
     @UseGuards(ThrottlerGuard, LocalAuthGuard)
