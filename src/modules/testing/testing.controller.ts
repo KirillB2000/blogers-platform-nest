@@ -1,27 +1,34 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { type Connection } from 'mongoose';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Controller('testing')
 export class TestingController {
 
     constructor (
-        @InjectConnection() private readonly databaseConnection: Connection
+        @InjectDataSource()
+        private dataSource: DataSource
     ) {}
 
     @Delete('all-data')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteAll () {
-        const collections = await this.databaseConnection.db
-            ?.listCollections()
-            .toArray() || []
+        const tables: { tablename: string }[] = await this.dataSource.query(
+            `
+                SELECT tablename
+                FROM pg_tables
+                WHERE schemaname='public'
+            `
+        );
 
-        const promises = collections
-            .filter(collection => !collection.name.startsWith('system.'))
-            .map(collection => {
-                this.databaseConnection.collection(collection.name).deleteMany()
-            })
+        if (tables.length > 0) {
+            const tableNames = tables.map(t => `"${t.tablename}"`).join(', ')
 
-        await Promise.all(promises)
+            await this.dataSource.query(
+                `
+                    TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE
+                `,
+            )
+        }
     }
 }

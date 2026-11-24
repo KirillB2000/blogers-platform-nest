@@ -28,7 +28,7 @@ export class CommentsController {
         @ExtractOptionalUser() user?: UserContextDto
     ): Promise<CommentViewModel> {
         const userId = user ? user.id : null
-        return this.commentsQwRepo.getCommentByIdOrFail(id, userId)
+        return this.commentsQwRepo.getCommentByIdOrFail(id, '' + userId) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(JwtAuthGuard)
@@ -39,7 +39,7 @@ export class CommentsController {
         @Param('commentId') commentId: string
     ): Promise<void> {
         const userId = user.id
-        await this.commandBus.execute<DeleteCommentCommand, void>(new DeleteCommentCommand(userId, commentId))
+        await this.commandBus.execute<DeleteCommentCommand, void>(new DeleteCommentCommand('' + userId, commentId)) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(JwtAuthGuard)
@@ -53,7 +53,7 @@ export class CommentsController {
         const userId = user.id
         const { content } = body
 
-        await this.commandBus.execute<UpdateCommentCommand, void>(new UpdateCommentCommand(userId, commentId, content))
+        await this.commandBus.execute<UpdateCommentCommand, void>(new UpdateCommentCommand('' + userId, commentId, content)) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(JwtAuthGuard)
@@ -67,7 +67,7 @@ export class CommentsController {
         const userId = user.id
         const { likeStatus } = body
 
-        await this.commandBus.execute<UpdateCommentLikeStatusCommand, void>(new UpdateCommentLikeStatusCommand(userId, commentId, likeStatus))
+        await this.commandBus.execute<UpdateCommentLikeStatusCommand, void>(new UpdateCommentLikeStatusCommand('' + userId, commentId, likeStatus)) // TODO: to fix when migrate to SQL
     }
 
 }

@@ -24,7 +24,7 @@ export class DeleteCommentUseCase implements ICommandHandler<DeleteCommentComman
         const userId = command.userId
         const commentId = command.commentId
 
-        const isUserExist = await this.usersRepository.countUsersById(userId)
+        const isUserExist = await this.usersRepository.countUsersById(Number(userId)) // TODO: to fix when migrate to SQL
 
         if (!isUserExist) {
             throw new UnauthorizedException('Unauthorized')

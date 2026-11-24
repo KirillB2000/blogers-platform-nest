@@ -87,7 +87,7 @@ export class BlogsController {
         const userId = user ? user.id : null
         await this.blogsRepository.findByIdOrFail(blogId)
 
-        return this.postsQwRepo.getAll(query, userId, blogId)
+        return this.postsQwRepo.getAll(query, '' + userId, blogId) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(BasicAuthGuard)

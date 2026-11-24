@@ -23,7 +23,7 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
     ): Promise<void> {
         const { userId, commentId, content: content } = command
 
-        const user = this.usersRepository.countUsersById(userId)
+        const user = this.usersRepository.countUsersById(Number(userId)) // TODO: to fix when migrate to SQL
 
         if (!user) {
             throw new UnauthorizedException('Unauthorized')

@@ -1,9 +1,0 @@
-$kind: http-request
-url: "{{BASE_URL}}/users"
-method: GET
-auth:
-  type: basic
-  credentials:
-    username: admin
-    password: qwerty
-order: 2000

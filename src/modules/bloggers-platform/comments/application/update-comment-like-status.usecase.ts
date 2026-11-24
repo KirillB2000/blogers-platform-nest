@@ -30,7 +30,7 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<UpdateCom
     ): Promise<void> {
         const { userId, commentId, likeStatus: newStatus, } = command
 
-        const user = await this.usersRepository.countUsersById(userId)
+        const user = await this.usersRepository.countUsersById(Number(userId)) // TODO: to fix when migrate to SQL
 
         if (!user) {
             throw new UnauthorizedException('Unauthorized')

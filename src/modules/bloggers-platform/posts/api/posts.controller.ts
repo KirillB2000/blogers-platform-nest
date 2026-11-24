@@ -55,7 +55,7 @@ export class PostsController {
     ): Promise<PostPagindatedViewDto> {
         const userId = user ? user.id : null
 
-        return await this.postsQwRepo.getAll(query, userId)
+        return await this.postsQwRepo.getAll(query, '' + userId) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(JwtOptionalAuthGuard)
@@ -65,7 +65,7 @@ export class PostsController {
         @ExtractOptionalUser() user?: UserContextDto
     ): Promise<PostViewModel> {
         const userId = user ? user.id : null
-        return await this.postsQwRepo.getByIdOrFail(id, userId)
+        return await this.postsQwRepo.getByIdOrFail(id, '' + userId) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(BasicAuthGuard)
@@ -104,7 +104,7 @@ export class PostsController {
             throw new NotFoundException('Post not found')
         }
 
-        return await this.commentsQwRepo.getAll(postId, query, userId)
+        return await this.commentsQwRepo.getAll(postId, query, '' + userId) // TODO: to fix when migrate to SQL
     }
 
     @UseGuards(JwtAuthGuard)
@@ -117,7 +117,7 @@ export class PostsController {
         const { content } = body
         const userId = user.id
 
-        const id = await this.commandBus.execute<CreateCommentCommand, string>(new CreateCommentCommand(userId, postId, content))
+        const id = await this.commandBus.execute<CreateCommentCommand, string>(new CreateCommentCommand('' + userId, postId, content)) // TODO: to fix when migrate to SQL
 
         const commentView = this.commentsQwRepo.getCommentByIdOrFail(id)
 
@@ -133,6 +133,6 @@ export class PostsController {
         @Body() body: LikeInputModel
     ) {
         const userId = user.id
-        await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(new UpdatePostLikeStatusCommand(userId, postId, body.likeStatus))
+        await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(new UpdatePostLikeStatusCommand('' + userId, postId, body.likeStatus)) // TODO: to fix when migrate to SQL
     }
 }
