@@ -1,4 +1,4 @@
-import { SecurityDevices } from "../../domain/security-devices.entity.js"
+import { SessionDbRow } from "../../domain/sessions-model.js"
 
 export class DevicesViewModel {
     ip: string
@@ -7,13 +7,13 @@ export class DevicesViewModel {
     deviceId: string
 
     static mapToView (
-        securityDevices: SecurityDevices
+        sessionsDb: SessionDbRow
     ): DevicesViewModel {
         return {
-            ip: securityDevices.ip,
-            title: securityDevices.title,
-            lastActiveDate: new Date(securityDevices.lastActiveDate).toISOString(),
-            deviceId: securityDevices.deviceId
+            ip: sessionsDb.ip,
+            title: sessionsDb.title,
+            lastActiveDate: new Date(Number(sessionsDb.last_active_date)).toISOString(),
+            deviceId: sessionsDb.device_id
         }
     }
 }

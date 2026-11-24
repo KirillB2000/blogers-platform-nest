@@ -80,27 +80,47 @@ export class SecurityDevicesRepository {
     }
 
     async deleteOtherSessions(
-        userId: string, 
+        userId: number, 
         deviceId: string
     ): Promise<void> {
-        await this.SecurityDevicesModel.deleteMany({
-            userId: userId,
-            deviceId: {$ne: deviceId}
-        })
+        await this.dataSource.query(
+            `
+                DELETE FROM sessions
+                WHERE user_id=$1 AND device_id != $2
+            `,
+            [userId, deviceId]
+        )
     }
 
     async findByDeviceId (
         deviceIdParam: string
-    ): Promise<SecurityDevices | null> {
-        const secDevDoc = await this.SecurityDevicesModel.findOne ({deviceId: deviceIdParam}).lean() // Check lean if tests crashed
+    ): Promise<SessionDbRow | null> {
+        // const secDevDoc = await this.SecurityDevicesModel.findOne ({deviceId: deviceIdParam}).lean() // Check lean if tests crashed
 
-        return secDevDoc
+        // return secDevDoc
+
+        const sessionsDbRows: SessionDbRow[] = await this.dataSource.query(
+            `
+                SELECT *
+                FROM sessions
+                WHERE device_id=$1
+            `,
+            [deviceIdParam]
+        )
+
+        return sessionsDbRows[0] ?? null
     }
 
     async deleteByDeviceId(
         deviceId: string
     ): Promise<void> {
-        await this.SecurityDevicesModel.deleteOne({deviceId})
+        await this.dataSource.query(
+            `
+                DELETE FROM sessions
+                WHERE device_id=$1
+            `,
+            [deviceId]
+        )
     }
 
     async updateSession(

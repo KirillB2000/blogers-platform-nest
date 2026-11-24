@@ -1,24 +1,32 @@
 import { Injectable } from "@nestjs/common";
-import { SecurityDevices, type SercurityDevicesModelType } from "../domain/security-devices.entity.js";
-import { InjectModel } from "@nestjs/mongoose";
 import { DevicesViewModel } from "../api/viewDto/devices.view-dto.js";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
+import { SessionDbRow } from "../domain/sessions-model.js";
 
 
 @Injectable()
 export class SecurityDevicesQueryRepository {
     constructor (
-        @InjectModel(SecurityDevices.name)
-        private SecurityDevicesModel: SercurityDevicesModelType
+        @InjectDataSource()
+        private dataSource: DataSource
     ) {}
 
     async getAll (
-        userId: string
-    ): Promise<DevicesViewModel[]>{ 
-        const secDevDocs = await this.SecurityDevicesModel.find({userId}).lean() // Check lean if TEST crushed
+        userId: number
+    ): Promise<DevicesViewModel[]> { 
+        const sessionsDbRows: SessionDbRow[] = await this.dataSource.query(
+            `
+                SELECT *
+                FROM sessions
+                WHERE user_id=$1
+            `,
+            [userId]
+        )
 
-        const devicesList = secDevDocs.map(secDevDoc => DevicesViewModel.mapToView(secDevDoc))
+        const DevicesVM = sessionsDbRows.map(sessionDbRow => DevicesViewModel.mapToView(sessionDbRow))
 
-        return devicesList
+        return DevicesVM
     }
 
 }

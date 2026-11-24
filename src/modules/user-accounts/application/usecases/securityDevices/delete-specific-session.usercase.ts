@@ -4,7 +4,7 @@ import { SecurityDevicesRepository } from "../../../infrastructure/sercurity-dev
 
 export class DeleteSpecificSessionCommand {
     constructor (
-        public userId: string,
+        public userId: number,
         public deviceId: string,
     ) {}
 }
@@ -27,7 +27,7 @@ export class DeleteSpecificSessionUseCase implements ICommandHandler<DeleteSpeci
             throw new NotFoundException('Session not found')
         }
 
-        if (sessionByDeivceIdParam.userId !== userId) {
+        if (sessionByDeivceIdParam.user_id !== userId) {
             throw new ForbiddenException("You don't have permission to terminate this session")
         }
 

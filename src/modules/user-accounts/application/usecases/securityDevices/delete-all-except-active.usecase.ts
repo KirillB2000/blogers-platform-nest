@@ -3,7 +3,7 @@ import { SecurityDevicesRepository } from "../../../infrastructure/sercurity-dev
 
 export class DeleteAllExceptActiveCommand {
     constructor (
-        public userId: string,
+        public userId: number,
         public deviceId: string
     ) {}
 }
