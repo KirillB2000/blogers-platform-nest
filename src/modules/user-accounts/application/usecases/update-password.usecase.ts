@@ -3,6 +3,7 @@ import { NewPasswordRecoveryAppDto } from "../dto/new-password.app-dto.js";
 import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { BadRequestException } from "@nestjs/common";
 import { PasswordService } from "../adapters/password.service.js";
+import { isAfter } from "date-fns";
 
 export class UpdatePasswordCommand {
     constructor (
@@ -28,12 +29,12 @@ export class UpdatePasswordUseCase implements ICommandHandler<UpdatePasswordComm
             throw new BadRequestException([{ message: 'Invalid recovery code', field: 'recoveryCode' }])
         }
 
-        userByRecoveryCode.checkRecoveryCodeOrThrow()
+        if (!userByRecoveryCode.recoveryExpirationDate || isAfter(new Date(), userByRecoveryCode.recoveryExpirationDate)) {
+            throw new BadRequestException([{ message: 'Recovery code is expired', field: 'recoveryCode' }])
+        }
 
         const passwordHash = await this.passwordService.hashPassword(newPassword)
 
-        userByRecoveryCode.updatePassword(passwordHash)
-
-        await this.usersRepository.save(userByRecoveryCode)
+        await this.usersRepository.updatePassword(userByRecoveryCode.id, passwordHash)
     }
 }

@@ -1,5 +1,5 @@
 export class RefreshUserContextDto {
-    userId: string
+    userId: number
     deviceId: string
     iat: number
 }

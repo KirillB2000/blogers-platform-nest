@@ -28,7 +28,7 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand, num
 
         const passwordHash = await this.passwordService.hashPassword(dto.password)
 
-        const userId = await this.usersRepository.createUser(dto.login, dto.email, passwordHash)
+        const userId = await this.usersRepository.createUserByAdmin (dto.login, dto.email, passwordHash)
 
         return userId
     }

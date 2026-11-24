@@ -1,7 +1,6 @@
 import { UnauthorizedException } from "@nestjs/common";
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "@nestjs/jwt";
-import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { AuthConfig } from "../../config/auth.config.js";
 import { randomUUID } from "crypto";
 import { SecurityDevicesRepository } from "../../infrastructure/sercurity-devices.repository.js";
@@ -10,7 +9,7 @@ import { TokensCredsAppDto } from "../dto/tokens-creds.app.dto.js";
 export class RefreshTokenCommand {
     constructor (
         // all three parametrs came from jwt refresh strategy
-        public userId: string,
+        public userId: number,
         public deviceId: string,
         public iat: number
     ) {}
@@ -60,9 +59,7 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand,
         const expiredAt = new Date((isseudAtSeconds + this.authConfig.jwtRefreshTokenExpirationTimeInSec) * 1000)
         const issuedAt = isseudAtSeconds * 1000
 
-        authSessionDoc.updateSession(issuedAt, expiredAt)
-
-        await this.securityDevicesRepository.save(authSessionDoc)
+        await this.securityDevicesRepository.updateSession(authSessionDoc.id, issuedAt, expiredAt)
         
         // Create new access token
 

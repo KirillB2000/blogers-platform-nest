@@ -5,7 +5,7 @@ import { UnauthorizedException } from "@nestjs/common";
 export class LogoutCommand {
     constructor (
         // all three parametrs came from jwt refresh strategy
-        public userId: string,
+        public userId: number,
         public deviceId: string,
         public iat: number
     ) {}

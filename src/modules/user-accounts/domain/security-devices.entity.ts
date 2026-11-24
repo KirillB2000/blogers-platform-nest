@@ -22,11 +22,6 @@ export class SecurityDevices {
         required: true,
         type: Number
     })
-    
-    @Prop({
-        required: true,
-        type: Number
-    })
     lastActiveDate: number // version of the refresh token
     
     @Prop({
@@ -61,14 +56,6 @@ export class SecurityDevices {
         securityService.userId = dto.userId
 
         return securityService as SecurityDevicesDocument 
-    }
-
-    updateSession(
-        lasActiveDate: number,
-        expirationDate: Date
-    ) {
-        this.lastActiveDate = lasActiveDate,
-        this.expirationDate = expirationDate
     }
 } 
 

@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { UserDocument } from "../../domain/user.entity.js";
 import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { PasswordService } from "../adapters/password.service.js";
+import { UserSqlModel } from "../../domain/user-sql-model.js";
 
 export class ValidateUserQuery {
     constructor (
@@ -11,7 +11,7 @@ export class ValidateUserQuery {
 }
 
 @QueryHandler(ValidateUserQuery)
-export class ValidateUserHanlder implements IQueryHandler<ValidateUserQuery, UserDocument | null> {
+export class ValidateUserHanlder implements IQueryHandler<ValidateUserQuery, UserSqlModel | null> {
     
     constructor(
         private usersRepository: UsersRepository,
@@ -20,7 +20,7 @@ export class ValidateUserHanlder implements IQueryHandler<ValidateUserQuery, Use
     
     async execute(
         query: ValidateUserQuery
-    ): Promise<UserDocument | null> {
+    ): Promise<UserSqlModel | null> {
         const loginOrEmail = query.loginOrEmail
         const password = query.password
         const user = await this.usersRepository.findByLoginOrEmailField(loginOrEmail)

@@ -2,6 +2,8 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { EmailService } from "../../../notification/email.service.js";
 import { BadRequestException } from "@nestjs/common";
+import { randomUUID } from "crypto";
+import { add } from "date-fns";
 
 export class EmailResendingCommand {
     constructor (
@@ -27,12 +29,17 @@ export class EmailResendingUseCase implements ICommandHandler<EmailResendingComm
             throw new BadRequestException([{ message: 'Email should be in the system and should be correct', field: 'email' }])
         }
 
-        userByEmail.updateConfirmationCode()
+        if (userByEmail.isConfirmed) {
+            throw new BadRequestException([{ message: 'Email already confirmed', field: 'email' }])
+        }
 
-        await this.usersRepository.save(userByEmail)
+        const confirmationCode = randomUUID() as string
+        const expirationDate = add(new Date(), { minutes: 5 })
+
+        await this.usersRepository.updateConfirmationCode(userByEmail.id, confirmationCode, expirationDate)
 
         this.emailService // TODO: create EventHandler for email
-            .sendConfirmationEmail(userByEmail.email, userByEmail.emailConfirmationInfo.confirmationCode)
+            .sendConfirmationEmail(userByEmail.email, confirmationCode)
             .catch(console.error)
     }
 }

@@ -1,5 +1,5 @@
 export class RefreshTokenPayload {
-    userId: string
+    userId: number
     deviceId: string
     jti: string
     iat: number

@@ -1,6 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { EmailService } from "../../../notification/email.service.js";
+import { randomUUID } from "crypto";
+import { add } from "date-fns";
 
 export class PasswordRecoveryCommand {
     constructor (
@@ -26,9 +28,10 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
             return
         }
 
-        const recoveryCode = userByEmail.updateRecoveryCode()
+        const recoveryCode = randomUUID() as string
+        const expirationDate = add(new Date(), { minutes: 5 })
 
-        await this.usersRepository.save(userByEmail)
+        await this.usersRepository.updateRecoveryCode(userByEmail.id, recoveryCode, expirationDate)
 
         this.emailService // TODO: create EventHandler for email
             .sendRecoveryPassword(recoveryCode, userByEmail.email)

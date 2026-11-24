@@ -76,54 +76,6 @@ export class User {
 
         return user as UserDocument // <== we need to use type casting (as UserDocument), because typescript defines it as User class
     }
-    confirmEmail() {
-        if (this.emailConfirmationInfo.isConfirmed) {
-            throw new BadRequestException([{ message: 'Email already confirmed', field: 'code' }])
-        }
-
-        if (isAfter(new Date(), this.emailConfirmationInfo.expirationDate)) {
-            throw new BadRequestException([{ message: 'Code expired', field: 'code' }])
-        }
-
-        this.emailConfirmationInfo.isConfirmed = true
-    }
-
-    updateConfirmationCode () {
-        if (this.emailConfirmationInfo.isConfirmed) {
-            throw new BadRequestException([{ message: 'Email already confirmed', field: 'email' }])
-        }
-
-        this.emailConfirmationInfo.confirmationCode = randomUUID() as string
-        this.emailConfirmationInfo.expirationDate = add(new Date(), { minutes: 5 })
-    }
-
-    updateRecoveryCode (): string {
-        const code = randomUUID() as string
-        
-        this.passwordRecoveryInfo.recoveryCode = code
-        this.passwordRecoveryInfo.expirationDate = add(new Date(), { minutes: 5 })
-
-        return code
-    }
-
-    checkRecoveryCodeOrThrow() {
-        if (!this.passwordRecoveryInfo.recoveryCode) {
-            throw new BadRequestException([{ message: 'Recovery code already used or invalid', field: 'recoveryCode' }]);
-        }
-        
-        if (isAfter(new Date(), this.passwordRecoveryInfo.expirationDate!)) {
-            throw new BadRequestException([{ message: 'Recovery code is expired', field: 'recoveryCode' }])
-        }
-    }
-
-    updatePassword (
-        hashedPassword: string
-    ) {
-        this.passwordHash = hashedPassword
-
-        this.passwordRecoveryInfo.recoveryCode = null
-        this.passwordRecoveryInfo.expirationDate = null
-    }
 
 }
 

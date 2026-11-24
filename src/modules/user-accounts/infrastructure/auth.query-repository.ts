@@ -15,11 +15,11 @@ export class AuthQueryRepository {
     ) {}
 
     async me (
-        userId: string
+        userId: number
     ): Promise<MeViewDto> {
-        const userDoc = await this.usersRepository.findOrNotFoundFail(userId)
+        const userDbRow = await this.usersRepository.findOrNotFoundFail(userId)
 
-        return MeViewDto.mapToView(userDoc)
+        return MeViewDto.mapToView(userDbRow)
     }
 
     async getAllTest () {

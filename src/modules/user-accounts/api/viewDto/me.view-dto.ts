@@ -1,4 +1,4 @@
-import { UserDocument } from "../../domain/user.entity.js"
+import { UserDbRow } from "../../domain/user-sql-model.js"
 
 export class MeViewDto {
     email: string
@@ -6,12 +6,12 @@ export class MeViewDto {
     userId: string
 
     static mapToView (
-        userDocument: UserDocument
+        userDbRow: UserDbRow
     ): MeViewDto {
         return {
-            email: userDocument.email,
-            login: userDocument.login,
-            userId: userDocument._id.toString()
+            email: userDbRow.email,
+            login: userDbRow.login,
+            userId: userDbRow.id.toString()
         }
     }
 }

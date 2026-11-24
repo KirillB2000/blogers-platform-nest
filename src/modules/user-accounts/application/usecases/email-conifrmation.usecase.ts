@@ -1,6 +1,7 @@
     import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { UsersRepository } from "../../infrastructure/users.repository.js";
 import { BadRequestException } from "@nestjs/common";
+import { isAfter } from "date-fns";
 
 export class EmailConfirmationCommand {
     constructor (
@@ -26,8 +27,14 @@ export class EmailConfirmationUseCase implements ICommandHandler<EmailConfirmati
             throw new BadRequestException([{ message: 'Code should be correct and exist in the system', field: 'code' }])
         }
 
-        userByCode.confirmEmail()
+        if (userByCode.isConfirmed) {
+            throw new BadRequestException([{ message: 'Email already confirmed', field: 'code' }])
+        }
 
-        await this.usersRepository.save(userByCode)
+        if (!userByCode.emailExpirationDate || isAfter(new Date(), userByCode.emailExpirationDate)) {
+            throw new BadRequestException([{ message: 'Code expired', field: 'code' }])
+        }
+
+        await this.usersRepository.updateIsConfirmedByUserId(userByCode.id)
     }
 }

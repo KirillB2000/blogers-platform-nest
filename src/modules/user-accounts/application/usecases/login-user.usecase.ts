@@ -3,14 +3,11 @@ import { JwtService } from "@nestjs/jwt";
 import { TokensCredsAppDto as TokensCredsAppDto } from "../dto/tokens-creds.app.dto.js";
 import { AuthConfig } from "../../config/auth.config.js";
 import { randomUUID } from "crypto";
-import { InjectModel } from "@nestjs/mongoose";
-import { SecurityDevices, type SercurityDevicesModelType } from "../../domain/security-devices.entity.js";
-import { CreateSercurityDevicesDomainDto } from "../../domain/dto/createSercurityDevicesDomainDto.js";
 import { SecurityDevicesRepository } from "../../infrastructure/sercurity-devices.repository.js";
 
 export class LoginUserCommand {
     constructor (
-        public userId: string,
+        public userId: number,
         public ipAddress: string,
         public deviceName: string
     ) {}
@@ -20,9 +17,6 @@ export class LoginUserCommand {
 export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, TokensCredsAppDto>{
     
     constructor (
-        @InjectModel(SecurityDevices.name)
-        private SecurityDevicesModel: SercurityDevicesModelType,
-        
         private jwtService: JwtService,
         private authConfig: AuthConfig,
         private securityDevicesRepository: SecurityDevicesRepository
@@ -66,19 +60,7 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand, Token
         const expiredAt = new Date( (isseudAtSeconds + this.authConfig.jwtRefreshTokenExpirationTimeInSec) * 1000)
         const issuedAt = isseudAtSeconds * 1000
 
-        const securityDevicesDomainDto = CreateSercurityDevicesDomainDto
-            .mapToDomain(
-                userId, 
-                deviceId, 
-                issuedAt, 
-                deviceName, 
-                ipAddress, 
-                expiredAt
-        )
-
-        const securityDevicesDoc = this.SecurityDevicesModel.createInstance(securityDevicesDomainDto)
-
-        await this.securityDevicesRepository.save(securityDevicesDoc)
+        await this.securityDevicesRepository.createSession(userId, deviceId, issuedAt, deviceName, ipAddress, expiredAt)
 
         return { accessToken, refreshToken }
     }
