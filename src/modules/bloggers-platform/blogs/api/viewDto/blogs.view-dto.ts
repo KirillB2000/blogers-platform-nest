@@ -1,4 +1,4 @@
-import { BlogDocument } from "../../domain/blogs.entity.js"
+import { BlogDbRow } from "../../domain/blog-sql-model.js"
 
 export class BlogViewModel {
     id:string
@@ -8,15 +8,17 @@ export class BlogViewModel {
     createdAt: Date
     isMembership: boolean
 
-    static mapToView(blogDoc: BlogDocument) {
+    static mapToView(
+        blogDbRow: BlogDbRow
+    ): BlogViewModel {
         const viewModel = new BlogViewModel()
 
-        viewModel.id = blogDoc._id.toString()
-        viewModel.name = blogDoc.name
-        viewModel.description = blogDoc.description
-        viewModel.websiteUrl = blogDoc.websiteUrl
-        viewModel.createdAt = blogDoc.createdAt
-        viewModel.isMembership = blogDoc.isMembership
+        viewModel.id = blogDbRow.id.toString()
+        viewModel.name = blogDbRow.name
+        viewModel.description = blogDbRow.description
+        viewModel.websiteUrl = blogDbRow.website_url
+        viewModel.createdAt = blogDbRow.created_at
+        viewModel.isMembership = blogDbRow.is_membership
         
         return viewModel
     }

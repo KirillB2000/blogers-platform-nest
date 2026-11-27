@@ -2,8 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { PostAppDto } from "../dto/post.app-dto.js";
 import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository.js";
 import { PostsRepository } from "../../infrastructure/posts.repository.js";
-import { InjectModel } from "@nestjs/mongoose";
-import { Post, type PostModelType } from "../../domain/posts.entity.js";
+import { NotFoundException } from "@nestjs/common";
 
 export class CreatePostCommand {
     constructor (
@@ -12,30 +11,31 @@ export class CreatePostCommand {
 }
 
 @CommandHandler(CreatePostCommand)
-export class CreatePostUseCase implements ICommandHandler<CreatePostCommand, string> {
+export class CreatePostUseCase implements ICommandHandler<CreatePostCommand, number> {
     constructor (
-        @InjectModel(Post.name)
-        private PostModel: PostModelType,
         private blogsRepository: BlogsRepository,
         private postsRepository: PostsRepository
     ) {}
 
     async execute(
         command: CreatePostCommand
-    ): Promise<string> {
+    ): Promise<number> {
         const dto = command.dto
 
-        const blog = await this.blogsRepository.findByIdOrFail(dto.blogId)
-        const blogName = blog.name
+        const blog = await this.blogsRepository.findById(dto.blogId)
+        
+        if (!blog) {
+            throw new NotFoundException('Blog not found')
+        }
 
 
-        const postDoc = this.PostModel.createInstance({
-            ...dto,
-            blogName: blogName
-        })
+        const postId = await this.postsRepository.createPost(
+            dto.title,
+            dto.shortDescription,
+            dto.content,
+            dto.blogId
+        )
 
-        await this.postsRepository.save(postDoc)
-
-        return postDoc.id
+        return postId
     }
 }

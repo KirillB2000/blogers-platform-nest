@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './api/sa-users.controller.js';
+import { SaUsersController } from './api/sa-users.controller.js';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './domain/user.entity.js';
 import { UsersRepository } from './infrastructure/users.repository.js';
@@ -70,7 +70,7 @@ const userAuthQueries = [
     }),
     NotificationModule
   ],
-  controllers: [UsersController, AuthController, SecurityDevicesController],
+  controllers: [SaUsersController, AuthController, SecurityDevicesController, ],
   providers: [
     UsersRepository, 
     UsersQwRepo,

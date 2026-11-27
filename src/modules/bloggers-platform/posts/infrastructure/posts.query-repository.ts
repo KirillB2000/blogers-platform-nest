@@ -1,31 +1,27 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { GetPostsQueryParams } from "../api/inputDto/get-posts-query-params.input-dto.js";
-import { InjectModel } from "@nestjs/mongoose";
-import { Post, type PostModelType } from "../domain/posts.entity.js";
 import { PostViewModel } from "../api/viewDto/post.view-dto.js";
 import { PostPagindatedViewDto } from "../api/viewDto/posts.paginated.view-dto.js";
-import { LikeStatus } from "../../../../core/types/like-statuses.js";
-import { LikeStatusPostsRepository } from "./posts-like-status.repository.js";
-import { LikeDetailsViewModel } from "../api/viewDto/likeDetails.view-dto.js";
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto.js";
-import { LikeStatusPosts, type LikeStatusPostsModelType } from "../domain/posts-like-status.entity.js";
+import { PostDbRowWithBlogName } from "../domain/post-sql-model.js";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
+import { PostsSortBy } from "../api/inputDto/posts-sort-by.js";
+import { SortDirection } from "../../../../core/dto/base.query-params.input-dto.js";
 
 
 @Injectable()
 export class PostsQwRepo {
     
     constructor (
-        @InjectModel(Post.name)
-        private PostModel: PostModelType,
-        @InjectModel(LikeStatusPosts.name)
-        private LikeStatustPostsModel: LikeStatusPostsModelType,
-        private likeStatusPostsRepository: LikeStatusPostsRepository
+        @InjectDataSource()
+        private dataSource: DataSource
     ) {}
 
     async getAll (
         query: GetPostsQueryParams,
-        userId?: string | null,
-        blogId?: string
+        userId?: number | null,
+        blogId?: number
     ): Promise<PaginatedViewDto<PostViewModel[]>> {
         const {
             pageNumber,
@@ -34,58 +30,50 @@ export class PostsQwRepo {
             sortDirection
         } = query
 
-        const filter: any = {}
         const skip = query.calculateSkip()
 
+        const conditions: string[] = []
+        const params: any[] = []
+
         if (blogId) {
-            filter.blogId = blogId
+            params.push(blogId)
+            conditions.push(`p.blog_id=$${params.length}`)
         }
 
-        const result = await this.PostModel
-            .find(filter)
-            .sort({ [sortBy]: sortDirection })
-            .skip(skip)
-            .limit(pageSize)
-            .lean()
-            .exec()
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
-        const totalCount = await this.PostModel.countDocuments(filter)
 
-        const postIds = result.map(post => post._id.toString())
-        const postLikesMap: Record<string, LikeStatus> = {}
+        const safeSortBy = Object.values(PostsSortBy).includes(sortBy)
+            ? sortBy
+            : PostsSortBy.CreatedAt
+        const safeSortDirection = sortDirection === SortDirection.Asc ? 'asc' : 'desc'
 
-        if (userId) {
-            const likeStatusDocs = await this.LikeStatustPostsModel
-                .find({
-                    userId: userId.toString(), 
-                    postId: { $in: postIds}
-                })
-                .lean() as LikeStatusPosts[]
+        const postsDbRowsBN: PostDbRowWithBlogName[] = await this.dataSource.query (
+            `
+                SELECT p.id, p.title, p.short_description, p.content, p.blog_id, p.created_at, b.name as blog_name
+                FROM posts p
+                INNER JOIN blogs b
+                ON p.blog_id=b.id
+                ${whereClause}
+                ORDER BY p.${safeSortBy} ${safeSortDirection}
+                LIMIT $${params.length + 1}
+                OFFSET $${params.length + 2}
+            `,
+            [...params, pageSize, skip]
+        )
 
-            likeStatusDocs.map(lSDoc => {
-                const key = String(lSDoc.postId)
-                postLikesMap[key] = lSDoc.myStatus
-            })
-        }
+        const countDbRows: {count: string}[] = await this.dataSource.query(
+            `
+                SELECT COUNT(*)
+                FROM posts p
+                ${whereClause}
+            `,
+            [...params]
+        )
 
-        const itemsPromises = result.map(async post => {
-            const postIdStr = post._id.toString();
-            const myStatus = postLikesMap[postIdStr] || LikeStatus.None
+        const totalCount = countDbRows[0].count
 
-            const likeInfoDocs = await this.likeStatusPostsRepository.findNewestLikes(postIdStr)
-
-            const newestLikes = likeInfoDocs.map(likeInf => {
-                return {
-                    addedAt: likeInf.addedAt,
-                    login: likeInf.login,
-                    userId: likeInf.userId
-                }
-            })
-
-            return PostViewModel.mapToView(post, myStatus, newestLikes)
-        })
-
-        const items = await Promise.all(itemsPromises)
+        const items = postsDbRowsBN.map(postDbRow => PostViewModel.mapToView(postDbRow))
 
         return PostPagindatedViewDto.mapToView({
             items: items,
@@ -96,37 +84,27 @@ export class PostsQwRepo {
     }
 
     async getByIdOrFail (
-        postId: string,
-        userId?: string | null
+        postId: number,
+        userId?: number | null
     ): Promise<PostViewModel> {
-        const postDoc = await this.PostModel.findById(postId).lean().exec()
 
-        if (!postDoc) {
+        const postsDbRows: PostDbRowWithBlogName[] = await this.dataSource.query(
+            `
+                SELECT p.id, p.title, p.short_description, p.content, p.blog_id, p.created_at, b.name as blog_name
+                FROM posts p
+                INNER JOIN blogs b
+                ON p.blog_id=b.id
+                WHERE p.id=$1
+            `,
+            [postId]
+        )
+
+        const postDbRowBN = postsDbRows[0] ? postsDbRows[0] : null
+
+        if (!postDbRowBN) {
             throw new NotFoundException('Post not found')
         }
 
-        let myStatus = LikeStatus.None
-        let newestLikes: LikeDetailsViewModel[] = []
-
-        if (userId) {
-            const postLikeStatus = await this.likeStatusPostsRepository
-                .findLikeStatusForSpecificPost(userId, postId)
-
-            if (postLikeStatus) {
-                myStatus = postLikeStatus.myStatus
-            }
-        }
-
-        const likeInfoDocs = await this.likeStatusPostsRepository.findNewestLikes(postId)
-
-        newestLikes = likeInfoDocs.map(likeInf => {
-            return {
-                addedAt: likeInf.addedAt,
-                login: likeInf.login,
-                userId: likeInf.userId
-            }
-        })
-
-        return PostViewModel.mapToView(postDoc, myStatus, newestLikes)
+        return PostViewModel.mapToView(postDbRowBN)
     }
 } 

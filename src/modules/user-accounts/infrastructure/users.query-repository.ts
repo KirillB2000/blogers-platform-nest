@@ -75,8 +75,6 @@ export class UsersQwRepo {
 
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' OR ')}` : ''
 
-        // Create variables for order by to defending of injections?
-
         const safeSortBy = Object.values(UsersSortBy).includes(sortBy)
             ? sortBy
             : UsersSortBy.CreatedAt;

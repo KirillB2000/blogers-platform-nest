@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { BlogsQwRepo } from '../infrastructure/blogs.query-repository.js';
 import { BlogInputModel } from './inputDto/blogs.input-dto.js';
 import { BlogViewModel } from './viewDto/blogs.view-dto.js';
@@ -28,8 +28,6 @@ export class BlogsController {
         private postsQwRepo: PostsQwRepo,
         private blogsQwRepo: BlogsQwRepo,
         private blogsRepository: BlogsRepository,
-
-        private commandBus: CommandBus
     ) {}
 
     @Get()
@@ -39,69 +37,10 @@ export class BlogsController {
         return await this.blogsQwRepo.getAll(query)
     }
 
-    @UseGuards(BasicAuthGuard)
-    @Post()
-    async createBlog (
-        @Body() body: BlogInputModel
-    ): Promise<BlogViewModel> {
-        const blogId = await this.commandBus.execute<CreateBlogCommand, string>(new CreateBlogCommand({...body}))
-
-        const blog = await this. blogsQwRepo.getBlogByIdOrFail(blogId)
-        return blog
-    }
-
     @Get(':id')
     async getBlogById (
-        @Param('id') id: string
+        @Param('id', ParseIntPipe) id: number
     ): Promise<BlogViewModel> {
         return this.blogsQwRepo.getBlogByIdOrFail(id)
-    }
-
-    @UseGuards(BasicAuthGuard)
-    @Put(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async updateBlogById(
-        @Param('id') id: string,
-        @Body() body: BlogInputModel
-    ): Promise<void> {
-        await this.commandBus.execute<UpdateBlogCommand, void>(new UpdateBlogCommand(id, {...body}))
-    }
-
-    @UseGuards(BasicAuthGuard)
-    @Delete(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteBlogById (
-        @Param('id') id: string
-    ): Promise<void> {
-        await this.commandBus.execute<DeleteBlogCommand, void>(new DeleteBlogCommand(id))
-    }
-
-    // Posts
-    @UseGuards(JwtOptionalAuthGuard)
-    @Get(':blogId/posts')
-    async getPostsListForBlogById (
-        @Param('blogId') blogId: string,
-        @Query() query: GetPostsQueryParams,
-        @ExtractOptionalUser() user?: UserContextDto
-    ): Promise<PostPagindatedViewDto> {
-        const userId = user ? user.id : null
-        await this.blogsRepository.findByIdOrFail(blogId)
-
-        return this.postsQwRepo.getAll(query, '' + userId, blogId) // TODO: to fix when migrate to SQL
-    }
-
-    @UseGuards(BasicAuthGuard)
-    @Post(':blogId/posts')
-    async createPostForBlog (
-        @Param('blogId') blogId: string,
-        @Body() body: BlogPostInputModel
-    ): Promise<PostViewModel> {
-        const correctDto: PostInputModel = {...body, blogId}
-
-        const postId = await this.commandBus.execute<CreatePostCommand, string>(new CreatePostCommand(correctDto))
-
-        const postViewData = await this.postsQwRepo.getByIdOrFail(postId)
-
-        return postViewData
     }
 }

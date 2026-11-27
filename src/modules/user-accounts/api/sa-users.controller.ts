@@ -23,7 +23,7 @@ import { DeleteUserCommand } from '../application/usecases/user/delete-user.usec
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/users')
-export class UsersController {
+export class SaUsersController {
     constructor (
         private usersQwRepository: UsersQwRepo,
         private commandBus: CommandBus

@@ -40,24 +40,6 @@ export class Blog {
 
     createdAt: Date
     updatedAt: Date
-
-    static createInstance(dto: CreateBlogDomainDto) {
-        const blog = new this()
-
-        blog.name = dto.name
-        blog.description = dto.description
-        blog.websiteUrl = dto.websiteUrl
-
-        blog.isMembership = dto.isMembership ?? false
-
-        return blog as BlogDocument
-    }
-
-    update (dto: BlogInputModel) {
-        this.name = dto.name
-        this.description = dto.description
-        this.websiteUrl = dto.websiteUrl
-    }
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog)

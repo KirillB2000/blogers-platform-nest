@@ -1,7 +1,6 @@
 import { LikeStatus } from "../../../../../core/types/like-statuses.js"
-import { PostDocument } from "../../domain/posts.entity.js"
+import { PostDbRowWithBlogName } from "../../domain/post-sql-model.js"
 import { ExtendedLikesInfoViewModel } from "./extendedLikes.view-dto.js"
-import { LikeDetailsViewModel } from "./likeDetails.view-dto.js"
 
 export class PostViewModel {
     id: string
@@ -14,24 +13,24 @@ export class PostViewModel {
     extendedLikesInfo: ExtendedLikesInfoViewModel
 
     static mapToView (
-        postDoc: PostDocument,
-        myStatus: LikeStatus,
-        newestLikes: LikeDetailsViewModel[] | []
+        postSqlRowBN: PostDbRowWithBlogName,
+        //myStatus: LikeStatus,
+        //newestLikes: LikeDetailsViewModel[] | []
     ) {
         const postViewM = new PostViewModel()
 
-        postViewM.id = postDoc._id.toString()
-        postViewM.title = postDoc.title
-        postViewM.shortDescription = postDoc.shortDescription
-        postViewM.content = postDoc.content
-        postViewM.blogId = postDoc.blogId
-        postViewM.blogName = postDoc.blogName
-        postViewM.createdAt = postDoc.createdAt
+        postViewM.id = postSqlRowBN.id.toString()
+        postViewM.title = postSqlRowBN.title
+        postViewM.shortDescription = postSqlRowBN.short_description
+        postViewM.content = postSqlRowBN.content
+        postViewM.blogId = postSqlRowBN.blog_id.toString()
+        postViewM.blogName = postSqlRowBN.blog_name
+        postViewM.createdAt = postSqlRowBN.created_at
         postViewM.extendedLikesInfo = {
-            dislikesCount: postDoc.extendedLikesInfo.dislikesCount,
-            likesCount: postDoc.extendedLikesInfo.likesCount,
-            myStatus: myStatus,
-            newestLikes: newestLikes
+            dislikesCount: 0,
+            likesCount: 0,
+            myStatus: LikeStatus.None,
+            newestLikes: []
         }
 
         return postViewM

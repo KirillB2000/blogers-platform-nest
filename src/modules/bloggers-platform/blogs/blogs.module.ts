@@ -8,6 +8,7 @@ import { PostsModule } from '../posts/posts.module.js';
 import { CreateBlogUseCase } from './application/usecases/create-blog.usecase.js';
 import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js';
 import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js';
+import { SaBlogsController } from './api/sa-blogs.controller.js';
 
 const blogsUseCases = [
   CreateBlogUseCase,
@@ -20,7 +21,7 @@ const blogsUseCases = [
     MongooseModule.forFeature([{name: Blog.name, schema: BlogSchema}]),
     forwardRef(() => PostsModule )
   ],
-  controllers: [BlogsController],
+  controllers: [BlogsController, SaBlogsController],
   providers: [ 
     BlogsRepository, 
     BlogsQwRepo,

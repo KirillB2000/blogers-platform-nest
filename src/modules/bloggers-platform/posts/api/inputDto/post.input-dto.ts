@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsString, MaxLength } from "class-validator"
+import { IsMongoId, IsNotEmpty, IsNumber, IsString, MaxLength } from "class-validator"
 import { Trim } from "../../../../../core/decorators/trim-transform.decorator.js"
 import { postRestrictions } from "../../domain/posts.entity.js"
 
@@ -22,8 +22,8 @@ export class PostInputModel {
     @Trim()
     content: string
 
-    @IsMongoId()
+    @IsNumber()
     @IsNotEmpty()
     @Trim()
-    blogId: string
+    blogId: number
 }

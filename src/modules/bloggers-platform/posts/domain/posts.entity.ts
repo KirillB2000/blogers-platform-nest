@@ -52,33 +52,6 @@ export class Post {
     createdAt: Date
     updatedAt: Date
 
-    static createInstance(
-        dto: CreatePostDomainDto
-    ): PostDocument { 
-        const post = new this()
-
-        post.title = dto.title
-        post.shortDescription = dto.shortDescription
-        post.content = dto.content
-        post.blogId = dto.blogId
-        post.blogName = dto.blogName
-
-        post.extendedLikesInfo = {
-            likesCount: 0,
-            dislikesCount: 0
-        }
-
-        return post as PostDocument
-    }
-
-    update (dto: UpdatePostDomainDto) {
-        this.title = dto.title
-        this.shortDescription = dto.shortDescription
-        this.content = dto.content
-        this.blogId = dto.blogId
-        this.blogName = dto.blogName
-    }
-
     updateLikeCounters (
         oldStatus: LikeStatus,
         newStatus: LikeStatus

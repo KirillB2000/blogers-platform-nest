@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { BlogAppDto } from "../dto/blogs.app-dto.js";
 import { BlogsRepository } from "../../infrastructure/blogs.repository.js";
+import { NotFoundException } from "@nestjs/common";
 
 export class UpdateBlogCommand {
     constructor (
-        public id: string,
+        public id: number,
         public dtoWithUpdateData: BlogAppDto
     ) {}
 }
@@ -20,10 +21,15 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand, voi
     ): Promise<void> {
         const { id, dtoWithUpdateData } = command
 
-        const blogDoc = await this.blogsRepository.findByIdOrFail(id)
+        const isUpdated = await this.blogsRepository.updateById(
+            id, 
+            dtoWithUpdateData.name, 
+            dtoWithUpdateData.description, 
+            dtoWithUpdateData.websiteUrl
+        )
 
-        blogDoc.update(dtoWithUpdateData)
-
-        await this.blogsRepository.save(blogDoc)
+        if (!isUpdated) {
+            throw new NotFoundException('Blog not found')
+        }
     }
 }

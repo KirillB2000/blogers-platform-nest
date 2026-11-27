@@ -5,7 +5,6 @@ import { EmailConfirmation, EmailConfirmationSchema } from "./email-confirmation
 import { PasswordRecovery, PasswordRecoverySchema } from "./password-recovery.schema.js";
 import { randomUUID } from "crypto";
 import { add, isAfter } from 'date-fns'
-import { BadRequestException } from "@nestjs/common";
 
 export const loginConstraints = {
     minLength: 3,

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete, UseGuards, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Param, Post, Get, Query, Put, HttpStatus, HttpCode, Delete, UseGuards, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { PostInputModel } from './inputDto/post.input-dto.js';
 import { PostsQwRepo } from '../infrastructure/posts.query-repository.js';
 import { PostViewModel } from './viewDto/post.view-dto.js';
@@ -35,18 +35,6 @@ export class PostsController {
         private commandBus: CommandBus
     ) {}
 
-    @UseGuards(BasicAuthGuard)
-    @Post()
-    async createPost (
-        @Body() body: PostInputModel
-    ): Promise<PostViewModel> {
-        const id = await this.commandBus.execute<CreatePostCommand, string>(new CreatePostCommand({...body}))
-
-        const postView = await this.postsQwRepo.getByIdOrFail(id)
-
-        return postView
-    }
-
     @UseGuards(JwtOptionalAuthGuard)
     @Get()
     async getPostsList(
@@ -55,36 +43,17 @@ export class PostsController {
     ): Promise<PostPagindatedViewDto> {
         const userId = user ? user.id : null
 
-        return await this.postsQwRepo.getAll(query, '' + userId) // TODO: to fix when migrate to SQL
+        return await this.postsQwRepo.getAll(query, userId)
     }
 
     @UseGuards(JwtOptionalAuthGuard)
     @Get(':id')
     async getPostById (
-        @Param('id') id: string,
+        @Param('id', ParseIntPipe) id: number,
         @ExtractOptionalUser() user?: UserContextDto
     ): Promise<PostViewModel> {
         const userId = user ? user.id : null
-        return await this.postsQwRepo.getByIdOrFail(id, '' + userId) // TODO: to fix when migrate to SQL
-    }
-
-    @UseGuards(BasicAuthGuard)
-    @Put(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async updatePostById (
-        @Param('id') id: string,
-        @Body() body: PostInputModel
-    ): Promise<void> {
-        return await this.commandBus.execute<UpdatePostCommand, void>(new UpdatePostCommand(id, {...body}))
-    }
-
-    @UseGuards(BasicAuthGuard)
-    @Delete(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async deletePostById (
-        @Param('id') id: string
-    ): Promise<void> {
-        await this.commandBus.execute<DeletePostCommand, void>(new DeletePostCommand(id))
+        return await this.postsQwRepo.getByIdOrFail(id, userId)
     }
 
     // Comment

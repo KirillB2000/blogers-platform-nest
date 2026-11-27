@@ -1,13 +1,14 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { PostAppDto } from "../dto/post.app-dto.js";
 import { PostsRepository } from "../../infrastructure/posts.repository.js";
 import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository.js";
 import { NotFoundException } from "@nestjs/common";
+import { BlogPostInputModel } from "../../../blogs/api/inputDto/blog-post.input-dto.js";
 
 export class UpdatePostCommand {
     constructor (
-        public id: string,
-        public dto: PostAppDto
+        public blogId: number,
+        public postId: number,
+        public dto: BlogPostInputModel
     ) {}
 }
 
@@ -21,22 +22,30 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand, voi
     async execute(
         command: UpdatePostCommand
     ): Promise<void> {
-        const { id, dto } = command
+        const { blogId, postId, dto } = command
 
-        const postDoc = await this.postsRepository.findById(id)
+        const isPostExist = await this.postsRepository.postExistence(postId)
 
-        if (!postDoc) {
+        if (!isPostExist) {
             throw new NotFoundException('Post not found')
         }
 
-        const blog = await this.blogsRepository.findByIdOrFail(dto.blogId)
-        const blogName = blog.name
+        const isBlogExist = await this.blogsRepository.checkBlogExists(blogId)
+        
+        if (!isBlogExist) {
+            throw new NotFoundException('Blog not found')
+        }
 
-        postDoc.update({
-            ...dto,
-            blogName
-        })
+        const isUpdated = await this.postsRepository.updatePostForSpecificBlog(
+            blogId,
+            dto.title, 
+            dto.shortDescription, 
+            dto.content,
+            postId
+        )
 
-        await this.postsRepository.save(postDoc)
+        if (!isUpdated) {
+            throw new NotFoundException('Blog or post not found')
+        }
     }
 }

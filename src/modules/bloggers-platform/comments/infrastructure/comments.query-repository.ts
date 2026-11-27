@@ -84,7 +84,7 @@ export class CommentsQwRepo {
 
             return CommentViewModel.mapToView(comment, likeStatus)
         })
-        const totalCount = await this.CommentModel.countDocuments(filter)
+        const totalCount = await this.CommentModel.countDocuments(filter) + '' // TODO: to fix when migrate to SQL
 
         return CommentsPaginatedViewDto.mapToView({
             items,
